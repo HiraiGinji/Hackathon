@@ -203,11 +203,33 @@ app.post('/api/enhance-prompt', async (req, res) => {
 
         if (!response.ok) {
             const errorText = await response.text();
-            console.error('Prompt Generator API error:', errorText);
+            console.error('========== PROMPT GENERATOR ERROR ==========');
+            console.error('Status Code:', response.status);
+            console.error('Status Text:', response.statusText);
+            console.error('Response Headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
+            console.error('Raw Error Response:', errorText);
+            
+            // Try to parse as JSON if possible
+            try {
+                const errorJson = JSON.parse(errorText);
+                console.error('Parsed Error JSON:', JSON.stringify(errorJson, null, 2));
+            } catch (e) {
+                console.error('Response is not JSON (plain text or HTML)');
+            }
+            
+            console.error('URL Called:', promptGeneratorUrl);
+            console.error('Request Payload:', JSON.stringify({ prompt, temperature: 0.9, top_k: 8, max_length: 80, num_return_sequences: 3 }));
+            console.error('===========================================');
+            
             // Fallback to original prompt if generator fails
             return res.json({ 
-                enhancedPrompts: [prompt],
-                original: prompt 
+                enhancedPrompts: [prompt, prompt, prompt],
+                original: prompt,
+                debug: {
+                    error: true,
+                    statusCode: response.status,
+                    errorText: errorText.substring(0, 500) // Limit size
+                }
             });
         }
 
