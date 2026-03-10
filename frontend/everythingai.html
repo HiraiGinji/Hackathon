@@ -453,43 +453,48 @@
             statusEl.className = 'api-status';
             
             try {
-                // Test both health endpoints
+                // Try both endpoints
                 let response;
-                try {
-                    response = await fetch(`${apiBase}/api/health`, {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
-                } catch (e) {
-                    // Try without /api prefix for direct Flask connection
-                    response = await fetch(`${apiBase}/health`, {
-                        method: 'GET',
-                        headers: { 'Content-Type': 'application/json' }
-                    });
+                let endpoints = [
+                    `${apiBase}/api/health`,
+                    `${apiBase}/health`
+                ];
+                
+                for (let endpoint of endpoints) {
+                    try {
+                        response = await fetch(endpoint, {
+                            method: 'GET',
+                            headers: { 'Content-Type': 'application/json' },
+                            mode: 'cors'
+                        });
+                        
+                        if (response.ok) {
+                            log(`✅ Connected to: ${endpoint}`, 'success');
+                            break;
+                        }
+                    } catch (e) {
+                        console.log(`Endpoint ${endpoint} failed:`, e.message);
+                    }
                 }
                 
-                if (response.ok) {
+                if (response && response.ok) {
                     const data = await response.json();
                     statusEl.innerHTML = '🟢 Backend: Connected';
                     statusEl.className = 'api-status connected';
                     generateBtn.disabled = false;
                     
-                    // Show model status if available
                     if (data.model_loaded !== undefined) {
-                        log(`✅ Backend connected - Model loaded: ${data.model_loaded ? 'Yes' : 'No'}`, 'success');
-                    } else {
-                        log('✅ Backend connected successfully', 'success');
+                        log(`✅ Model loaded: ${data.model_loaded ? 'Yes' : 'No'}`, 'success');
                     }
                 } else {
-                    throw new Error('Connection failed');
+                    throw new Error('All endpoints failed');
                 }
             } catch (error) {
                 statusEl.innerHTML = '🔴 Backend: Disconnected';
                 statusEl.className = 'api-status disconnected';
                 generateBtn.disabled = true;
-                log('❌ Cannot connect to backend. Make sure your server is running.', 'error');
+                log('❌ Cannot connect to backend. Make sure your Flask app is running.', 'error');
                 
-                // Special message for ngrok
                 if (apiBase.includes('ngrok')) {
                     log('💡 Tip: Make sure your local Flask app is running on port 5000 and ngrok tunnel is active', 'info');
                 }
