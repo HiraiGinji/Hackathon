@@ -451,52 +451,78 @@
             
             statusEl.innerHTML = '⏳ Testing connection...';
             statusEl.className = 'api-status';
+            generateBtn.disabled = true;
             
+            // First test if ngrok is reachable at all
             try {
-                // Try both endpoints
-                let response;
-                let endpoints = [
-                    `${apiBase}/api/health`,
-                    `${apiBase}/health`
-                ];
-                
-                for (let endpoint of endpoints) {
-                    try {
-                        response = await fetch(endpoint, {
-                            method: 'GET',
-                            headers: { 'Content-Type': 'application/json' },
-                            mode: 'cors'
-                        });
-                        
-                        if (response.ok) {
-                            log(`✅ Connected to: ${endpoint}`, 'success');
-                            break;
-                        }
-                    } catch (e) {
-                        console.log(`Endpoint ${endpoint} failed:`, e.message);
-                    }
-                }
-                
-                if (response && response.ok) {
-                    const data = await response.json();
-                    statusEl.innerHTML = '🟢 Backend: Connected';
-                    statusEl.className = 'api-status connected';
-                    generateBtn.disabled = false;
+                const testResponse = await fetch(apiBase, {
+                    method: 'GET',
+                    mode: 'cors',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                log(`🌐 ngrok tunnel is reachable`, 'info');
+            } catch (e) {
+                log(`❌ ngrok tunnel not reachable: ${e.message}`, 'error');
+                statusEl.innerHTML = '🔴 ngrok Tunnel: Not Reachable';
+                statusEl.className = 'api-status disconnected';
+                return;
+            }
+            
+            // Now test the Flask endpoints
+            let connected = false;
+            let endpoints = [
+                { url: `${apiBase}/api/health`, name: '/api/health' },
+                { url: `${apiBase}/health`, name: '/health' },
+                { url: `${apiBase}/`, name: 'root' }
+            ];
+            
+            for (let endpoint of endpoints) {
+                try {
+                    log(`Testing ${endpoint.name}...`, 'info');
                     
-                    if (data.model_loaded !== undefined) {
-                        log(`✅ Model loaded: ${data.model_loaded ? 'Yes' : 'No'}`, 'success');
+                    const response = await fetch(endpoint.url, {
+                        method: 'GET',
+                        mode: 'cors',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        }
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        log(`✅ Connected to ${endpoint.name}: ${JSON.stringify(data)}`, 'success');
+                        connected = true;
+                        
+                        statusEl.innerHTML = '🟢 Backend: Connected';
+                        statusEl.className = 'api-status connected';
+                        generateBtn.disabled = false;
+                        
+                        // Show model status
+                        if (data.model_loaded !== undefined) {
+                            log(`🤖 Model loaded: ${data.model_loaded ? 'Yes' : 'No'}`, 'info');
+                        }
+                        break;
+                    } else {
+                        log(`❌ ${endpoint.name} returned ${response.status}`, 'error');
                     }
-                } else {
-                    throw new Error('All endpoints failed');
+                } catch (error) {
+                    log(`❌ ${endpoint.name} error: ${error.message}`, 'error');
                 }
-            } catch (error) {
+            }
+            
+            if (!connected) {
                 statusEl.innerHTML = '🔴 Backend: Disconnected';
                 statusEl.className = 'api-status disconnected';
                 generateBtn.disabled = true;
-                log('❌ Cannot connect to backend. Make sure your Flask app is running.', 'error');
+                log('❌ Could not connect to any Flask endpoint', 'error');
                 
                 if (apiBase.includes('ngrok')) {
-                    log('💡 Tip: Make sure your local Flask app is running on port 5000 and ngrok tunnel is active', 'info');
+                    log('💡 Troubleshooting:', 'info');
+                    log('   1. Make sure Flask app is running: python app.py', 'info');
+                    log('   2. Check Flask console for errors', 'info');
+                    log('   3. Visit https://nonlosable-designedly-garrison.ngrok-free.dev in browser', 'info');
+                    log('   4. Check ngrok dashboard: http://127.0.0.1:4040', 'info');
                 }
             }
         }
