@@ -978,7 +978,11 @@
                 downloadContainer.innerHTML = '';
                 
                 try {
-                    const r = await fetch(API_BASE + '/api/generate-image', {
+                    // Fix: Construct URL properly without any extra characters
+                    const url = API_BASE + '/api/generate-image';
+                    console.log('Fetching:', url); // Debug log
+                    
+                    const r = await fetch(url, {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
@@ -987,7 +991,11 @@
                         body: JSON.stringify({ prompt: prompt })
                     });
                     
-                    if (!r.ok) throw new Error('Generation failed');
+                    if (!r.ok) {
+                        const errorText = await r.text();
+                        console.error('Generation error:', errorText);
+                        throw new Error('Generation failed: ' + r.status);
+                    }
                     
                     const d = await r.json();
                     currentJobId = d.id;
@@ -1068,7 +1076,11 @@
                 isGenerating = true;
                 
                 try {
-                    const r = await fetch(API_BASE + '/api/generate-image', {
+                    // Fix: Construct URL properly
+                    const url = API_BASE + '/api/generate-image';
+                    console.log('Initial fetch:', url);
+                    
+                    const r = await fetch(url, {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
