@@ -183,70 +183,157 @@ app.post('/api/enhance-prompt', async (req, res) => {
 
         console.log('Enhancing prompt:', prompt);
 
-        // Call the Python Prompt Generator service
-        // If running locally on same machine
-        const promptGeneratorUrl = process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/generate';
+        // Get the prompt generator URL from environment or use default
+        // Check if we're using ngrok tunnel
+        let promptGeneratorUrl = process.env.PROMPT_GENERATOR_URL;
         
-        const response = await fetch(promptGeneratorUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                prompt: prompt,
-                temperature: 0.9,
-                top_k: 8,
-                max_length: 80,
-                num_return_sequences: 3
-            })
-        });
-
-        if (!response.ok) {
-            const errorText = await response.text();
-            console.error('========== PROMPT GENERATOR ERROR ==========');
-            console.error('Status Code:', response.status);
-            console.error('Status Text:', response.statusText);
-            console.error('Response Headers:', JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2));
-            console.error('Raw Error Response:', errorText);
-            
-            // Try to parse as JSON if possible
-            try {
-                const errorJson = JSON.parse(errorText);
-                console.error('Parsed Error JSON:', JSON.stringify(errorJson, null, 2));
-            } catch (e) {
-                console.error('Response is not JSON (plain text or HTML)');
+        // If no env var set, try to determine the best URL
+        if (!promptGeneratorUrl) {
+            // Check if we're in development vs production
+            if (process.env.NODE_ENV === 'production') {
+                // In production, use the ngrok URL if available, otherwise fallback to localhost
+                promptGeneratorUrl = process.env.NGROK_URL || 'http://localhost:5000/generate';
+            } else {
+                // In development, use localhost
+                promptGeneratorUrl = 'http://localhost:5000/generate';
             }
-            
-            console.error('URL Called:', promptGeneratorUrl);
-            console.error('Request Payload:', JSON.stringify({ prompt, temperature: 0.9, top_k: 8, max_length: 80, num_return_sequences: 3 }));
-            console.error('===========================================');
-            
-            // Fallback to original prompt if generator fails
-            return res.json({ 
-                enhancedPrompts: [prompt, prompt, prompt],
-                original: prompt,
-                debug: {
-                    error: true,
-                    statusCode: response.status,
-                    errorText: errorText.substring(0, 500) // Limit size
-                }
-            });
         }
 
-        const data = await response.json();
-        
-        // The prompt generator returns an array of enhanced prompts
-        res.json({ 
-            enhancedPrompts: data,
-            original: prompt 
-        });
+        console.log(`Calling prompt generator at: ${promptGeneratorUrl}`);
+
+        // Add timeout to prevent hanging
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+
+        try {
+            const response = await fetch(promptGeneratorUrl, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    prompt: prompt,
+                    temperature: 0.9,
+                    top_k: 8,
+                    max_length: 80,
+                    num_return_sequences: 3
+                }),
+                signal: controller.signal
+            });
+
+            clearTimeout(timeoutId);
+
+            if (!response.ok) {
+                const errorText = await response.text();
+                console.error('========== PROMPT GENERATOR ERROR ==========');
+                console.error('Status Code:', response.status);
+                console.error('Status Text:', response.statusText);
+                console.error('URL Called:', promptGeneratorUrl);
+                console.error('===========================================');
+                
+                // Fallback to simple enhanced prompts
+                const fallbackPrompts = [
+                    `${prompt}, highly detailed, masterpiece, trending on ArtStation`,
+                    `${prompt}, cinematic lighting, 8k resolution, professional photography`,
+                    `${prompt}, intricate details, sharp focus, award winning`
+                ];
+                
+                return res.json({ 
+                    enhancedPrompts: fallbackPrompts,
+                    original: prompt,
+                    fallback: true
+                });
+            }
+
+            const data = await response.json();
+            
+            // Handle different response formats
+            let enhancedPrompts = [];
+            if (Array.isArray(data)) {
+                enhancedPrompts = data;
+            } else if (data.enhancedPrompts) {
+                enhancedPrompts = data.enhancedPrompts;
+            } else {
+                enhancedPrompts = [prompt];
+            }
+            
+            res.json({ 
+                enhancedPrompts: enhancedPrompts,
+                original: prompt 
+            });
+            
+        } catch (fetchError) {
+            clearTimeout(timeoutId);
+            
+            if (fetchError.name === 'AbortError') {
+                console.error('Prompt generator request timed out');
+            } else {
+                console.error('Fetch error:', fetchError.message);
+            }
+            
+            // Fallback to simple enhanced prompts
+            const fallbackPrompts = [
+                `${prompt}, highly detailed, masterpiece, trending on ArtStation`,
+                `${prompt}, cinematic lighting, 8k resolution, professional photography`,
+                `${prompt}, intricate details, sharp focus, award winning`
+            ];
+            
+            res.json({ 
+                enhancedPrompts: fallbackPrompts,
+                original: prompt,
+                fallback: true
+            });
+        }
         
     } catch (error) {
         console.error('Error in enhance-prompt:', error);
-        // Fallback to original prompt
+        // Fallback to original prompt with simple enhancements
+        const fallbackPrompts = [
+            `${prompt}, highly detailed`,
+            `${prompt}, cinematic lighting`,
+            `${prompt}, masterpiece`
+        ];
         res.json({ 
-            enhancedPrompts: [prompt],
+            enhancedPrompts: fallbackPrompts,
             original: prompt 
+        });
+    }
+});
+
+// New endpoint to check prompt generator status
+app.get('/api/prompt-generator-status', async (req, res) => {
+    try {
+        const promptGeneratorUrl = process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/health';
+        
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 5000);
+        
+        const response = await fetch(promptGeneratorUrl, {
+            method: 'GET',
+            signal: controller.signal
+        });
+        
+        clearTimeout(timeoutId);
+        
+        if (response.ok) {
+            const data = await response.json();
+            res.json({ 
+                status: 'connected', 
+                url: promptGeneratorUrl,
+                details: data 
+            });
+        } else {
+            res.json({ 
+                status: 'error', 
+                url: promptGeneratorUrl,
+                code: response.status 
+            });
+        }
+    } catch (error) {
+        res.json({ 
+            status: 'disconnected', 
+            url: process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/health',
+            error: error.message 
         });
     }
 });
@@ -257,4 +344,10 @@ app.listen(PORT, () => {
     console.log(`📝 Health check: http://localhost:${PORT}/api/health`);
     console.log(`🔑 Mistral API Key: ${process.env.MISTRAL_API_KEY ? '✓ Loaded' : '✗ Missing'}`);
     console.log(`🔑 Horde API Key: ${process.env.HORDE_API_KEY ? '✓ Loaded' : '✗ Missing'}`);
+    console.log(`🤖 Prompt Generator: ${process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/generate (default)'}`);
+    
+    // Show ngrok info if configured
+    if (process.env.NGROK_URL) {
+        console.log(`🌐 Using ngrok tunnel: ${process.env.NGROK_URL}`);
+    }
 });
