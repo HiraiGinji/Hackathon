@@ -374,10 +374,11 @@
             <div id="apiStatus" class="api-status disconnected">🔴 Backend: Disconnected</div>
             <div>
                 <span style="color: #888;">API Base: </span>
-                <select id="apiBaseSelect" style="width: auto; display: inline-block; padding: 5px 10px; background: #222; color: #fff; border: 1px solid #333; border-radius: 8px;">
+                <select id="apiBaseSelect" style="width: auto; display: inline-block; padding: 5px 10px; background: #222; color: #fff; border: 1px solid #333; border-radius: 8px;" onchange="updateApiBase()">
                     <option value="http://localhost:3000">Local (http://localhost:3000)</option>
                     <option value="https://your-backend.onrender.com">Render (your-backend.onrender.com)</option>
                     <option value="https://your-api.vercel.app">Vercel (your-api.vercel.app)</option>
+                    <option value="https://nonlosable-designedly-garrison.ngrok-free.dev" selected>Local PC via ngrok (🔴 LIVE)</option>
                 </select>
                 <button class="test-button" style="padding: 5px 15px; font-size: 0.9rem;" onclick="testBackendConnection()">Test Connection</button>
             </div>
@@ -428,21 +429,23 @@
     <script>
         let generatedTitle = 'Your Prompt';
         let generatedDescription = '';
-        
+        let selectedApiBase = 'https://nonlosable-designedly-garrison.ngrok-free.dev'; // Default to ngrok URL
 
-        // Auto-detect environment (localhost vs Render)
-        function getApiBaseUrl() {
-            // Check if we're running on localhost
-            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
-                return 'http://localhost:3000'; // Use local backend
-            }
-            // On Render, use empty string for relative URLs (same domain)
-            return '';
+        // Update API base when dropdown changes
+        function updateApiBase() {
+            const select = document.getElementById('apiBaseSelect');
+            selectedApiBase = select.value;
+            log(`🔧 API Base changed to: ${selectedApiBase}`, 'info');
+            testBackendConnection();
         }
 
+        // Get current API base URL
+        function getApiBaseUrl() {
+            return selectedApiBase;
+        }
 
         async function testBackendConnection() {
-            const apiBase = getApiBaseUrl(); // This will be '' on Render, 'http://localhost:3000' locally
+            const apiBase = getApiBaseUrl();
             const statusEl = document.getElementById('apiStatus');
             const generateBtn = document.getElementById('generateBtn');
             
@@ -450,18 +453,33 @@
             statusEl.className = 'api-status';
             
             try {
-                // Use the detected base URL
-                const response = await fetch(`${apiBase}/api/health`, {
-                    method: 'GET',
-                    headers: { 'Content-Type': 'application/json' }
-                    // Remove 'mode: cors' - not needed for same-origin requests on Render
-                });
+                // Test both health endpoints
+                let response;
+                try {
+                    response = await fetch(`${apiBase}/api/health`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                } catch (e) {
+                    // Try without /api prefix for direct Flask connection
+                    response = await fetch(`${apiBase}/health`, {
+                        method: 'GET',
+                        headers: { 'Content-Type': 'application/json' }
+                    });
+                }
                 
                 if (response.ok) {
+                    const data = await response.json();
                     statusEl.innerHTML = '🟢 Backend: Connected';
                     statusEl.className = 'api-status connected';
                     generateBtn.disabled = false;
-                    log('✅ Backend connected successfully', 'success');
+                    
+                    // Show model status if available
+                    if (data.model_loaded !== undefined) {
+                        log(`✅ Backend connected - Model loaded: ${data.model_loaded ? 'Yes' : 'No'}`, 'success');
+                    } else {
+                        log('✅ Backend connected successfully', 'success');
+                    }
                 } else {
                     throw new Error('Connection failed');
                 }
@@ -470,6 +488,11 @@
                 statusEl.className = 'api-status disconnected';
                 generateBtn.disabled = true;
                 log('❌ Cannot connect to backend. Make sure your server is running.', 'error');
+                
+                // Special message for ngrok
+                if (apiBase.includes('ngrok')) {
+                    log('💡 Tip: Make sure your local Flask app is running on port 5000 and ngrok tunnel is active', 'info');
+                }
             }
         }
 
@@ -524,60 +547,97 @@
                 const promptWithStyle = `${sanitizedPrompt}, ${selectedStyle}`;
 
                 // Step 1: Enhance the prompt (now includes style)
-                const enhanceResponse = await fetch(`${apiBase}/api/enhance-prompt`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: promptWithStyle })
-                });
+                // Try both endpoints (with and without /api prefix)
+                let enhanceResponse;
+                try {
+                    enhanceResponse = await fetch(`${apiBase}/api/enhance-prompt`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: promptWithStyle })
+                    });
+                } catch (e) {
+                    // Try direct Flask endpoint
+                    enhanceResponse = await fetch(`${apiBase}/generate`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ 
+                            prompt: promptWithStyle,
+                            temperature: 0.9,
+                            top_k: 8,
+                            max_length: 80,
+                            num_return_sequences: 3
+                        })
+                    });
+                }
                 
                 let enhancedPrompts = [sanitizedPrompt];
                 let enhancedPrompt = sanitizedPrompt;
                 
                 if (enhanceResponse.ok) {
                     const enhanceData = await enhanceResponse.json();
-                    enhancedPrompts = enhanceData.enhancedPrompts || [sanitizedPrompt];
-                    enhancedPrompt = enhancedPrompts[0]; // Use the first enhanced version
+                    // Handle different response formats
+                    if (Array.isArray(enhanceData)) {
+                        enhancedPrompts = enhanceData;
+                    } else if (enhanceData.enhancedPrompts) {
+                        enhancedPrompts = enhanceData.enhancedPrompts;
+                    }
+                    enhancedPrompt = enhancedPrompts[0] || sanitizedPrompt;
                     log(`✨ Prompt enhanced: "${promptWithStyle.substring(0, 50)}..."`, 'info');
+                } else {
+                    log('⚠️ Using fallback prompt enhancement', 'info');
+                    // Simple fallback enhancements
+                    enhancedPrompts = [
+                        `${promptWithStyle}, highly detailed, masterpiece`,
+                        `${promptWithStyle}, cinematic lighting, 8k quality`,
+                        `${promptWithStyle}, professional photography, sharp focus`
+                    ];
+                    enhancedPrompt = enhancedPrompts[0];
                 }
                 
                 // Step 2: Generate title with Mistral (using enhanced prompt)
                 document.getElementById('hordeResult').innerHTML = '🎨 Generating title with Mistral AI...';
                 
-                const titleResponse = await fetch(`${apiBase}/api/generate-title`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ prompt: enhancedPrompt })
-                });
-                
-                if (titleResponse.ok) {
-                    const data = await titleResponse.json();
+                try {
+                    const titleResponse = await fetch(`${apiBase}/api/generate-title`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ prompt: enhancedPrompt })
+                    });
                     
-                    if (data.choices && data.choices[0]) {
-                        const content = data.choices[0].message.content;
-                        const jsonMatch = content.match(/\{[\s\S]*\}/);
+                    if (titleResponse.ok) {
+                        const data = await titleResponse.json();
                         
-                        if (jsonMatch) {
-                            try {
-                                const titleData = JSON.parse(jsonMatch[0]);
-                                generatedTitle = titleData.title || 'AI Generated Image';
-                                generatedDescription = titleData.description || '';
-                            } catch (e) {
-                                generatedTitle = 'AI Generated Image';
-                                generatedDescription = '';
+                        if (data.choices && data.choices[0]) {
+                            const content = data.choices[0].message.content;
+                            const jsonMatch = content.match(/\{[\s\S]*\}/);
+                            
+                            if (jsonMatch) {
+                                try {
+                                    const titleData = JSON.parse(jsonMatch[0]);
+                                    generatedTitle = titleData.title || 'AI Generated Image';
+                                    generatedDescription = titleData.description || '';
+                                } catch (e) {
+                                    generatedTitle = 'AI Generated Image';
+                                    generatedDescription = '';
+                                }
                             }
+                        } else if (data.title) {
+                            generatedTitle = data.title;
+                            generatedDescription = data.description || '';
                         }
-                    } else if (data.title) {
-                        generatedTitle = data.title;
-                        generatedDescription = data.description || '';
+                        
+                        log(`✨ Title generated: "${generatedTitle}"`, 'success');
                     }
-                    
-                    log(`✨ Title generated: "${generatedTitle}"`, 'success');
+                } catch (e) {
+                    log('⚠️ Using default title', 'info');
+                    generatedTitle = 'AI Generated Image';
+                    generatedDescription = '';
                 }
                 
                 const finalPrompt = enhancedPrompt;
                 
                 // Step 3: Open generation tab with enhanced prompt
-                openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts);
+                openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts, apiBase);
                 document.getElementById('hordeResult').innerHTML = `✅ New tab opened: "${generatedTitle}" (Enhanced prompt)`;
                 log(`🎨 Opened generation tab with enhanced prompt`, 'success');
                 
@@ -587,18 +647,19 @@
                 
                 // Fallback to original prompt
                 const finalPrompt = `${sanitizedPrompt}, ${sanitizedStyle}`;
-                openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt]);
+                openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], apiBase);
                 document.getElementById('hordeResult').innerHTML = `✅ New tab opened (using original prompt)`;
             } finally {
                 generateBtn.disabled = false;
             }
         }
 
-        function openGenerationTab(finalPrompt, title, description, enhancedPrompts = []) {
+        function openGenerationTab(finalPrompt, title, description, enhancedPrompts = [], apiBase) {
             const safeTitle = sanitizeInput(title);
             const safeDescription = sanitizeInput(description);
             const safePrompt = sanitizeInput(finalPrompt);
             const safeEnhancedPrompts = enhancedPrompts.map(p => sanitizeInput(p));
+            const safeApiBase = sanitizeInput(apiBase);
             
             const htmlContent = `<!DOCTYPE html>
             <html lang="en">
@@ -860,7 +921,7 @@
                 </div>
 
             <script>
-            const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
+            const API_BASE = "${safeApiBase}";
             let currentPrompt = "${safePrompt.replace(/"/g, '\\"').replace(/'/g, "\\'")}";
             let currentJobId = null;
             let generatedImages = {}; // Cache for generated images by prompt
@@ -1088,10 +1149,14 @@
 
         
         window.onload = function() {
+            // Set default to ngrok
+            document.getElementById('apiBaseSelect').value = 'https://nonlosable-designedly-garrison.ngrok-free.dev';
+            selectedApiBase = 'https://nonlosable-designedly-garrison.ngrok-free.dev';
             testBackendConnection();
-            log('Ready to generate images!', 'info');
+            log('🚀 Using local PC backend via ngrok tunnel', 'info');
+            log('💡 Make sure your Flask app is running on port 5000', 'info');
         };
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
