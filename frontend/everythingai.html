@@ -451,79 +451,31 @@
             
             statusEl.innerHTML = '⏳ Testing connection...';
             statusEl.className = 'api-status';
-            generateBtn.disabled = true;
             
-            // First test if ngrok is reachable at all
             try {
-                const testResponse = await fetch(apiBase, {
+                // Add ngrok header to bypass warning page
+                const response = await fetch(`${apiBase}/api/health`, {
                     method: 'GET',
-                    mode: 'cors',
-                    headers: { 'Content-Type': 'application/json' }
-                });
-                log(`🌐 ngrok tunnel is reachable`, 'info');
-            } catch (e) {
-                log(`❌ ngrok tunnel not reachable: ${e.message}`, 'error');
-                statusEl.innerHTML = '🔴 ngrok Tunnel: Not Reachable';
-                statusEl.className = 'api-status disconnected';
-                return;
-            }
-            
-            // Now test the Flask endpoints
-            let connected = false;
-            let endpoints = [
-                { url: `${apiBase}/api/health`, name: '/api/health' },
-                { url: `${apiBase}/health`, name: '/health' },
-                { url: `${apiBase}/`, name: 'root' }
-            ];
-            
-            for (let endpoint of endpoints) {
-                try {
-                    log(`Testing ${endpoint.name}...`, 'info');
-                    
-                    const response = await fetch(endpoint.url, {
-                        method: 'GET',
-                        mode: 'cors',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'Accept': 'application/json'
-                        }
-                    });
-                    
-                    if (response.ok) {
-                        const data = await response.json();
-                        log(`✅ Connected to ${endpoint.name}: ${JSON.stringify(data)}`, 'success');
-                        connected = true;
-                        
-                        statusEl.innerHTML = '🟢 Backend: Connected';
-                        statusEl.className = 'api-status connected';
-                        generateBtn.disabled = false;
-                        
-                        // Show model status
-                        if (data.model_loaded !== undefined) {
-                            log(`🤖 Model loaded: ${data.model_loaded ? 'Yes' : 'No'}`, 'info');
-                        }
-                        break;
-                    } else {
-                        log(`❌ ${endpoint.name} returned ${response.status}`, 'error');
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
                     }
-                } catch (error) {
-                    log(`❌ ${endpoint.name} error: ${error.message}`, 'error');
+                });
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    statusEl.innerHTML = '🟢 Backend: Connected';
+                    statusEl.className = 'api-status connected';
+                    generateBtn.disabled = false;
+                    log('✅ Backend connected successfully', 'success');
+                } else {
+                    throw new Error('Connection failed');
                 }
-            }
-            
-            if (!connected) {
+            } catch (error) {
                 statusEl.innerHTML = '🔴 Backend: Disconnected';
                 statusEl.className = 'api-status disconnected';
                 generateBtn.disabled = true;
-                log('❌ Could not connect to any Flask endpoint', 'error');
-                
-                if (apiBase.includes('ngrok')) {
-                    log('💡 Troubleshooting:', 'info');
-                    log('   1. Make sure Flask app is running: python app.py', 'info');
-                    log('   2. Check Flask console for errors', 'info');
-                    log('   3. Visit https://nonlosable-designedly-garrison.ngrok-free.dev in browser', 'info');
-                    log('   4. Check ngrok dashboard: http://127.0.0.1:4040', 'info');
-                }
+                log('❌ Cannot connect to backend.', 'error');
             }
         }
 
@@ -583,14 +535,20 @@
                 try {
                     enhanceResponse = await fetch(`${apiBase}/api/enhance-prompt`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
                         body: JSON.stringify({ prompt: promptWithStyle })
                     });
                 } catch (e) {
                     // Try direct Flask endpoint
                     enhanceResponse = await fetch(`${apiBase}/generate`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
                         body: JSON.stringify({ 
                             prompt: promptWithStyle,
                             temperature: 0.9,
@@ -631,7 +589,10 @@
                 try {
                     const titleResponse = await fetch(`${apiBase}/api/generate-title`, {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
                         body: JSON.stringify({ prompt: enhancedPrompt })
                     });
                     
@@ -1019,7 +980,10 @@
                 try {
                     const r = await fetch(API_BASE + '/api/generate-image', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
                         body: JSON.stringify({ prompt: prompt })
                     });
                     
@@ -1048,7 +1012,11 @@
                 
                 const poll = setInterval(async () => {
                     try {
-                        const stat = await fetch(API_BASE + '/api/image-status/' + id);
+                        const stat = await fetch(API_BASE + '/api/image-status/' + id, {
+                            headers: {
+                                'ngrok-skip-browser-warning': 'true'
+                            }
+                        });
                         const st = await stat.json();
                         
                         if (st.done && st.generations && st.generations[0]) {
@@ -1102,7 +1070,10 @@
                 try {
                     const r = await fetch(API_BASE + '/api/generate-image', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'ngrok-skip-browser-warning': 'true'
+                        },
                         body: JSON.stringify({ prompt: currentPrompt })
                     });
                     
@@ -1124,7 +1095,11 @@
                     
                     const poll = setInterval(async () => {
                         try {
-                            const stat = await fetch(API_BASE + '/api/image-status/' + id);
+                            const stat = await fetch(API_BASE + '/api/image-status/' + id, {
+                                headers: {
+                                    'ngrok-skip-browser-warning': 'true'
+                                }
+                            });
                             const st = await stat.json();
                             
                             if (st.done && st.generations && st.generations[0]) {
