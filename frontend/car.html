@@ -494,7 +494,12 @@
 
         // Get the API base URL from select or default to localhost
         function getApiBaseUrl() {
-            return document.getElementById('apiBaseSelect').value;
+            // Check if we're running on localhost
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                return 'http://localhost:3000'; // Use local backend
+            }
+            // On Render, use empty string for relative URLs (same domain)
+            return '';
         }
 
         // Test backend connection
@@ -971,7 +976,7 @@
         </div>
 
         <script>
-        const API_BASE = "${apiBase}";
+        const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
         const USER_PROMPT = "${sanitizedUserPrompt.replace(/"/g, '\\"')}";
         const CARS = ${JSON.stringify(carsData)};
         const INITIAL_INDEX = ${currentIndex};

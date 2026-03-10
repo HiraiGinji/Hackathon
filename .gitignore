@@ -6,6 +6,8 @@ frontend/node_modules/
 # Environment variables
 .env
 backend/.env
+venv/
+venv
 
 # Logs
 *.log
@@ -20,3 +22,9 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
+
+# Python virtual environment
+venv/
+env/
+ENV/
+myenv/
