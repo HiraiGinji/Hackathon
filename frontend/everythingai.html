@@ -512,11 +512,9 @@
         async function generateImage() {
             const userPrompt = document.getElementById('userPrompt').value;
             const style = document.getElementById('styleSelect').value;
-            const apiBase = getApiBaseUrl();
+            const nodeApiBase = document.getElementById('apiBaseSelect').value; // Node.js backend
+            const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev'; // Flask for prompt enhancement
             const generateBtn = document.getElementById('generateBtn');
-            
-            // Define the Flask URL for prompt enhancement
-            const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev';
             
             if (!userPrompt.trim()) {
                 alert('Please enter a prompt first.');
@@ -532,14 +530,14 @@
             try {
                 // Get selected style
                 const selectedStyle = document.getElementById('styleSelect').value;
-
+        
                 // Combine prompt with style before enhancement
                 const promptWithStyle = `${sanitizedPrompt}, ${selectedStyle}`;
-
-                // STEP 1: Enhance the prompt - CALL FLASK DIRECTLY (since that's where /generate exists)
+        
+                // STEP 1: Enhance the prompt - CALL FLASK DIRECTLY
                 let enhanceResponse;
                 try {
-                    enhanceResponse = await fetch(`${flaskUrl}/generate`, {
+                    enhanceResponse = await fetch(`${flaskUrl}/generate`, {  // Note: using /generate, not /api/generate
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
@@ -590,7 +588,7 @@
                         'Content-Type': 'application/json'
                     };
                     
-                    const titleResponse = await fetch(`${apiBase}/api/generate-title`, {
+                    const titleResponse = await fetch(`${nodeApiBase}/api/generate-title`, {  // Use nodeApiBase here
                         method: 'POST',
                         headers: titleHeaders,
                         body: JSON.stringify({ prompt: enhancedPrompt })
@@ -629,7 +627,7 @@
                 const finalPrompt = enhancedPrompt;
                 
                 // STEP 3: Open generation tab with enhanced prompt - USE NODE.JS BACKEND FOR IMAGE GEN
-                openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts, apiBase);
+                openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts, nodeApiBase); // Pass nodeApiBase
                 document.getElementById('hordeResult').innerHTML = `✅ New tab opened: "${generatedTitle}" (Enhanced prompt)`;
                 log(`🎨 Opened generation tab with enhanced prompt`, 'success');
                 
@@ -639,7 +637,7 @@
                 
                 // Fallback to original prompt
                 const finalPrompt = `${sanitizedPrompt}, ${sanitizedStyle}`;
-                openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], apiBase);
+                openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], nodeApiBase);
                 document.getElementById('hordeResult').innerHTML = `✅ New tab opened (using original prompt)`;
             } finally {
                 generateBtn.disabled = false;
