@@ -284,65 +284,96 @@
             color: #b0f0f0;
         }
 
-        /* ---------- STYLE CARDS (7 vertical rectangular) ---------- */
-        .style-card-container {
+        /* ---------- STYLE SELECTOR (dropdown + display) ---------- */
+        .style-selector-container {
             display: flex;
             flex-direction: column;
-            gap: 10px;
+            gap: 15px;
             margin: 10px 0 16px;
-            max-height: 340px;
-            overflow-y: auto;
-            padding-right: 8px;
         }
-        .style-card {
+        
+        .selected-style-display {
+            background: rgba(0, 255, 247, 0.08);
+            border: 1.5px solid var(--primary-cyan);
+            border-radius: 40px;
+            padding: 16px 24px;
             display: flex;
             align-items: center;
-            gap: 18px;
-            background: rgba(10, 10, 20, 0.6);
-            backdrop-filter: blur(6px);
-            border: 1.5px solid rgba(255, 255, 255, 0.04);
-            border-radius: 28px;
-            padding: 10px 22px;
-            cursor: pointer;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
-        .style-card:hover {
-            border-color: rgba(0, 255, 247, 0.5);
-            background: rgba(20, 30, 40, 0.7);
-            transform: translateX(6px);
-        }
-        .style-card.selected {
-            border-color: var(--primary-cyan);
-            background: rgba(0, 255, 247, 0.08);
+            gap: 15px;
             box-shadow: 0 0 20px rgba(0,255,247,0.2);
         }
-        .style-icon {
-            width: 44px;
-            height: 44px;
-            background: rgba(0,255,247,0.1);
-            border-radius: 22px;
+        
+        .selected-style-icon {
+            width: 48px;
+            height: 48px;
+            background: rgba(0,255,247,0.15);
+            border-radius: 30px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 1.6rem;
+            font-size: 1.8rem;
             color: var(--primary-cyan);
-            border: 1px solid rgba(0,255,247,0.3);
-            flex-shrink: 0;
+            border: 1px solid rgba(0,255,247,0.4);
         }
-        .style-info {
+        
+        .selected-style-info {
             flex: 1;
         }
-        .style-name {
-            font-weight: 600;
-            font-size: 1.1rem;
-            color: #fff;
-            margin-bottom: 2px;
-        }
-        .style-desc {
-            font-size: 0.8rem;
+        
+        .selected-style-label {
+            font-size: 0.85rem;
             color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 4px;
         }
+        
+        .selected-style-name {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: #fff;
+            font-family: 'Space Grotesk', sans-serif;
+            line-height: 1.2;
+        }
+        
+        .selected-style-desc {
+            font-size: 0.9rem;
+            color: var(--primary-cyan);
+            opacity: 0.9;
+        }
+        
+        .style-dropdown {
+            background: rgba(10, 10, 18, 0.7);
+            border: 1.5px solid rgba(0, 255, 247, 0.3);
+            border-radius: 40px;
+            padding: 12px 20px;
+            color: white;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            width: 100%;
+            backdrop-filter: blur(5px);
+            appearance: none;
+            background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2300fff7' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+            background-repeat: no-repeat;
+            background-position: right 20px center;
+            background-size: 16px;
+        }
+        .style-dropdown:hover {
+            border-color: var(--primary-cyan);
+            background-color: rgba(20, 30, 40, 0.7);
+        }
+        .style-dropdown:focus {
+            outline: none;
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 4px rgba(0, 255, 247, 0.1);
+        }
+        .style-dropdown option {
+            background: #1a1a28;
+            color: white;
+            padding: 10px;
+        }
+
         /* hide the original select */
         #styleSelect {
             display: none;
@@ -440,6 +471,7 @@
         @media (max-width: 768px) {
             .hero-compact { flex-direction: column; align-items: flex-start; }
             .navbar-professional .navbar-brand { font-size: 1.6rem; }
+            .selected-style-name { font-size: 1.2rem; }
         }
     </style>
 </head>
@@ -488,7 +520,7 @@
             </div>
         </div>
 
-        <!-- Card 1: Prompt input + style cards (vertical) -->
+        <!-- Card 1: Prompt input + style selector (text display) -->
         <div class="card-professional mb-4">
             <div class="section-title">
                 <span>1️⃣</span> Describe & style
@@ -507,57 +539,30 @@
                 <option value="cinematic">Cinematic</option>
             </select>
 
-            <!-- 7 vertical rectangular style cards -->
-            <div class="style-card-container" id="styleCardContainer">
-                <div class="style-card selected" data-value="photorealistic" data-index="0">
-                    <div class="style-icon"><i class="fas fa-camera"></i></div>
-                    <div class="style-info">
-                        <div class="style-name">Photorealistic</div>
-                        <div class="style-desc">Ultra‑realistic, sharp details</div>
+            <!-- Style selector with text display -->
+            <div class="style-selector-container">
+                <!-- Selected style display card -->
+                <div class="selected-style-display" id="selectedStyleDisplay">
+                    <div class="selected-style-icon" id="selectedStyleIcon">
+                        <i class="fas fa-camera"></i>
+                    </div>
+                    <div class="selected-style-info">
+                        <div class="selected-style-label">Selected style</div>
+                        <div class="selected-style-name" id="selectedStyleName">Photorealistic</div>
+                        <div class="selected-style-desc" id="selectedStyleDesc">Ultra‑realistic, sharp details</div>
                     </div>
                 </div>
-                <div class="style-card" data-value="digital art" data-index="1">
-                    <div class="style-icon"><i class="fas fa-paint-brush"></i></div>
-                    <div class="style-info">
-                        <div class="style-name">Digital Art</div>
-                        <div class="style-desc">Modern, vibrant, illustrated</div>
-                    </div>
-                </div>
-                <div class="style-card" data-value="oil painting" data-index="2">
-                    <div class="style-icon"><i class="fas fa-palette"></i></div>
-                    <div class="style-info">
-                        <div class="style-name">Oil Painting</div>
-                        <div class="style-desc">Classic, textured brushstrokes</div>
-                    </div>
-                </div>
-                <div class="style-card" data-value="anime" data-index="3">
-                    <div class="style-icon"><i class="fas fa-dragon"></i></div>
-                    <div class="style-info">
-                        <div class="style-name">Anime Style</div>
-                        <div class="style-desc">Japanese animation aesthetic</div>
-                    </div>
-                </div>
-                <div class="style-card" data-value="sketch" data-index="4">
-                    <div class="style-icon"><i class="fas fa-pencil-alt"></i></div>
-                    <div class="style-info">
-                        <div class="style-name">Sketch</div>
-                        <div class="style-desc">Hand‑drawn, line art</div>
-                    </div>
-                </div>
-                <div class="style-card" data-value="3d render" data-index="5">
-                    <div class="style-icon"><i class="fas fa-cube"></i></div>
-                    <div class="style-info">
-                        <div class="style-name">3D Render</div>
-                        <div class="style-desc">CGI, volumetric, dimensional</div>
-                    </div>
-                </div>
-                <div class="style-card" data-value="cinematic" data-index="6">
-                    <div class="style-icon"><i class="fas fa-film"></i></div>
-                    <div class="style-info">
-                        <div class="style-name">Cinematic</div>
-                        <div class="style-desc">Movie‑like, dramatic lighting</div>
-                    </div>
-                </div>
+                
+                <!-- Dropdown for style selection -->
+                <select class="style-dropdown" id="styleDropdown">
+                    <option value="photorealistic" data-icon="camera" data-desc="Ultra‑realistic, sharp details">Photorealistic</option>
+                    <option value="digital art" data-icon="paint-brush" data-desc="Modern, vibrant, illustrated">Digital Art</option>
+                    <option value="oil painting" data-icon="palette" data-desc="Classic, textured brushstrokes">Oil Painting</option>
+                    <option value="anime" data-icon="dragon" data-desc="Japanese animation aesthetic">Anime Style</option>
+                    <option value="sketch" data-icon="pencil-alt" data-desc="Hand‑drawn, line art">Sketch</option>
+                    <option value="3d render" data-icon="cube" data-desc="CGI, volumetric, dimensional">3D Render</option>
+                    <option value="cinematic" data-icon="film" data-desc="Movie‑like, dramatic lighting">Cinematic</option>
+                </select>
             </div>
 
             <div class="row mt-2">
@@ -635,467 +640,487 @@
     <a href="#" class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></a>
 
     <script>
-        // ---------- BACKEND CONNECTIONS (identical to original, unchanged) ----------
-        let generatedTitle = 'Your Prompt';
-        let generatedDescription = '';
-        let selectedApiBase = 'https://hackathon-thkh.onrender.com';
+    // ---------- BACKEND CONNECTIONS (identical to original, unchanged) ----------
+    let generatedTitle = 'Your Prompt';
+    let generatedDescription = '';
+    let selectedApiBase = 'https://hackathon-thkh.onrender.com';
 
-        function updateApiBase() {
-            const select = document.getElementById('apiBaseSelect');
-            selectedApiBase = select.value;
-            log(`🔧 API Base changed to: ${selectedApiBase}`, 'info');
-            testBackendConnection();
-        }
+    function updateApiBase() {
+        const select = document.getElementById('apiBaseSelect');
+        selectedApiBase = select.value;
+        log(`🔧 API Base changed to: ${selectedApiBase}`, 'info');
+        testBackendConnection();
+    }
 
-        function getApiBaseUrl() {
-            return selectedApiBase;
-        }
+    function getApiBaseUrl() {
+        return selectedApiBase;
+    }
 
-        async function testBackendConnection() {
-            const apiBase = getApiBaseUrl();
-            const statusEl = document.getElementById('apiStatus');
-            const generateBtn = document.getElementById('generateBtn');
-            
-            statusEl.innerHTML = '⏳ Testing connection...';
-            statusEl.className = 'api-status';
-            
-            try {
-                const headers = { 'Content-Type': 'application/json' };
-                if (apiBase.includes('ngrok')) {
-                    headers['ngrok-skip-browser-warning'] = 'true';
-                }
-                const response = await fetch(`${apiBase}/api/health`, {
-                    method: 'GET',
-                    headers: headers
-                });
-                if (response.ok) {
-                    statusEl.innerHTML = '🟢 Backend: Connected';
-                    statusEl.className = 'api-status connected';
-                    generateBtn.disabled = false;
-                    log('✅ Backend connected successfully', 'success');
-                } else {
-                    throw new Error('Connection failed');
-                }
-            } catch (error) {
-                statusEl.innerHTML = '🔴 Backend: Disconnected';
-                statusEl.className = 'api-status disconnected';
-                generateBtn.disabled = true;
-                log('❌ Cannot connect to backend.', 'error');
+    async function testBackendConnection() {
+        const apiBase = getApiBaseUrl();
+        const statusEl = document.getElementById('apiStatus');
+        const generateBtn = document.getElementById('generateBtn');
+        
+        statusEl.innerHTML = '⏳ Testing connection...';
+        statusEl.className = 'api-status';
+        
+        try {
+            const headers = { 'Content-Type': 'application/json' };
+            if (apiBase.includes('ngrok')) {
+                headers['ngrok-skip-browser-warning'] = 'true';
             }
-        }
-
-        function sanitizeInput(input) {
-            if (!input) return '';
-            return input
-                .replace(/&/g, '&amp;')
-                .replace(/</g, '&lt;')
-                .replace(/>/g, '&gt;')
-                .replace(/"/g, '&quot;')
-                .replace(/'/g, '&#x27;')
-                .replace(/\//g, '&#x2F;')
-                .substring(0, 1000);
-        }
-
-        function log(message, type = 'info') {
-            const results = document.getElementById('testResults');
-            const timestamp = new Date().toLocaleTimeString();
-            const color = type === 'success' ? '#00fff7' : type === 'error' ? '#ff8a8a' : '#b0b8c0';
-            results.innerHTML += `<div><span style="color: ${color}">[${timestamp}]</span> ${message}</div>`;
-            results.scrollTop = results.scrollHeight;
-        }
-
-        function clearAllResults() {
-            document.getElementById('testResults').innerHTML = '';
-            document.getElementById('hordeResult').innerHTML = 'Click "Generate Image" to open a new tab with live generation.';
-            log('Cleared', 'info');
-        }
-
-        // ---------- STYLE CARD LOGIC ----------
-        const styleCards = document.querySelectorAll('.style-card');
-        const hiddenSelect = document.getElementById('styleSelect');
-
-        function updateSelectedStyle(value) {
-            hiddenSelect.value = value;
-            styleCards.forEach(card => {
-                if (card.dataset.value === value) {
-                    card.classList.add('selected');
-                } else {
-                    card.classList.remove('selected');
-                }
+            const response = await fetch(`${apiBase}/api/health`, {
+                method: 'GET',
+                headers: headers
             });
-            log(`🎨 Style preset: ${value}`, 'info');
-        }
-
-        styleCards.forEach(card => {
-            card.addEventListener('click', () => {
-                const val = card.dataset.value;
-                updateSelectedStyle(val);
-            });
-        });
-
-        // initial sync
-        updateSelectedStyle('photorealistic');
-
-        async function generateImage() {
-            const userPrompt = document.getElementById('userPrompt').value;
-            const style = document.getElementById('styleSelect').value;
-            const nodeApiBase = document.getElementById('apiBaseSelect').value; // Node.js backend
-            const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev'; // Flask for prompt enhancement
-            const generateBtn = document.getElementById('generateBtn');
-            
-            // Define the Flask URL for prompt enhancement
-            const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev';
-            
-            if (!userPrompt.trim()) {
-                alert('Please enter a prompt first.');
-                return;
-            }
-            
-            const sanitizedPrompt = sanitizeInput(userPrompt);
-            const sanitizedStyle = sanitizeInput(style);
-            
-            document.getElementById('hordeResult').innerHTML = '🎨 Enhancing prompt with AI...';
-            generateBtn.disabled = true;
-            
-            try {
-                // Get selected style
-                const selectedStyle = document.getElementById('styleSelect').value;
-
-                // Combine prompt with style before enhancement
-                const promptWithStyle = `${sanitizedPrompt}, ${selectedStyle}`;
-
-                // STEP 1: Enhance the prompt - CALL FLASK DIRECTLY (since that's where /generate exists)
-                let enhanceResponse;
-                try {
-                    enhanceResponse = await fetch(`${flaskUrl}/generate`, {  // Note: using /generate, not /api/generate
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                            'ngrok-skip-browser-warning': 'true'
-                        },
-                        body: JSON.stringify({ 
-                            prompt: promptWithStyle,
-                            temperature: 0.9,
-                            top_k: 8,
-                            max_length: 80,
-                            num_return_sequences: 3
-                        })
-                    });
-                } catch (e) {
-                    log('⚠️ Flask connection failed, using fallback', 'error');
-                    enhanceResponse = { ok: false };
-                }
-                
-                let enhancedPrompts = [sanitizedPrompt];
-                let enhancedPrompt = sanitizedPrompt;
-                
-                if (enhanceResponse && enhanceResponse.ok) {
-                    const enhanceData = await enhanceResponse.json();
-                    if (Array.isArray(enhanceData)) {
-                        enhancedPrompts = enhanceData;
-                    } else if (enhanceData.enhancedPrompts) {
-                        enhancedPrompts = enhanceData.enhancedPrompts;
-                    }
-                    enhancedPrompt = enhancedPrompts[0] || sanitizedPrompt;
-                    log(`✨ Prompt enhanced via Flask: "${promptWithStyle.substring(0, 50)}..."`, 'info');
-                } else {
-                    log('⚠️ Using fallback prompt enhancement', 'info');
-                    enhancedPrompts = [
-                        `${promptWithStyle}, highly detailed, masterpiece`,
-                        `${promptWithStyle}, cinematic lighting, 8k quality`,
-                        `${promptWithStyle}, professional photography, sharp focus`
-                    ];
-                    enhancedPrompt = enhancedPrompts[0];
-                }
-                
-                document.getElementById('hordeResult').innerHTML = '🎨 Generating title with Mistral AI...';
-                
-                try {
-                    const titleHeaders = {
-                        'Content-Type': 'application/json'
-                    };
-                    
-                    const titleResponse = await fetch(`${apiBase}/api/generate-title`, {
-                        method: 'POST',
-                        headers: titleHeaders,
-                        body: JSON.stringify({ prompt: enhancedPrompt })
-                    });
-                    
-                    if (titleResponse.ok) {
-                        const data = await titleResponse.json();
-                        
-                        if (data.choices && data.choices[0]) {
-                            const content = data.choices[0].message.content;
-                            const jsonMatch = content.match(/\{[\s\S]*\}/);
-                            
-                            if (jsonMatch) {
-                                try {
-                                    const titleData = JSON.parse(jsonMatch[0]);
-                                    generatedTitle = titleData.title || 'AI Generated Image';
-                                    generatedDescription = titleData.description || '';
-                                } catch (e) {
-                                    generatedTitle = 'AI Generated Image';
-                                    generatedDescription = '';
-                                }
-                            }
-                        } else if (data.title) {
-                            generatedTitle = data.title;
-                            generatedDescription = data.description || '';
-                        }
-                        
-                        log(`✨ Title generated: "${generatedTitle}"`, 'success');
-                    }
-                } catch (e) {
-                    log('⚠️ Using default title', 'info');
-                    generatedTitle = 'AI Generated Image';
-                    generatedDescription = '';
-                }
-                
-                const finalPrompt = enhancedPrompt;
-                
-                // STEP 3: Open generation tab with enhanced prompt - USE NODE.JS BACKEND FOR IMAGE GEN
-                openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts, apiBase);
-                document.getElementById('hordeResult').innerHTML = `✅ New tab opened: "${generatedTitle}" (Enhanced prompt)`;
-                log(`🎨 Opened generation tab with enhanced prompt`, 'success');
-                
-            } catch (error) {
-                console.error('Error in generateImage:', error);
-                log(`❌ Error: ${error.message}`, 'error');
-                const finalPrompt = `${sanitizedPrompt}, ${sanitizedStyle}`;
-                openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], nodeApiBase);
-                document.getElementById('hordeResult').innerHTML = `✅ New tab opened (using original prompt)`;
-            } finally {
+            if (response.ok) {
+                statusEl.innerHTML = '🟢 Backend: Connected';
+                statusEl.className = 'api-status connected';
                 generateBtn.disabled = false;
+                log('✅ Backend connected successfully', 'success');
+            } else {
+                throw new Error('Connection failed');
             }
+        } catch (error) {
+            statusEl.innerHTML = '🔴 Backend: Disconnected';
+            statusEl.className = 'api-status disconnected';
+            generateBtn.disabled = true;
+            log('❌ Cannot connect to backend.', 'error');
         }
+    }
 
-        function openGenerationTab(finalPrompt, title, description, enhancedPrompts = [], apiBase) {
-            const safeTitle = sanitizeInput(title);
-            const safeDescription = sanitizeInput(description);
-            const safePrompt = sanitizeInput(finalPrompt);
-            const safeEnhancedPrompts = enhancedPrompts.map(p => sanitizeInput(p));
-            const safeApiBase = apiBase;
+    function sanitizeInput(input) {
+        if (!input) return '';
+        return input
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#x27;')
+            .replace(/\//g, '&#x2F;')
+            .substring(0, 1000);
+    }
+
+    function log(message, type = 'info') {
+        const results = document.getElementById('testResults');
+        const timestamp = new Date().toLocaleTimeString();
+        const color = type === 'success' ? '#00fff7' : type === 'error' ? '#ff8a8a' : '#b0b8c0';
+        results.innerHTML += `<div><span style="color: ${color}">[${timestamp}]</span> ${message}</div>`;
+        results.scrollTop = results.scrollHeight;
+    }
+
+    function clearAllResults() {
+        document.getElementById('testResults').innerHTML = '';
+        document.getElementById('hordeResult').innerHTML = 'Click "Generate Image" to open a new tab with live generation.';
+        log('Cleared', 'info');
+    }
+
+    // ---------- STYLE SELECTOR WITH TEXT DISPLAY ----------
+    const hiddenSelect = document.getElementById('styleSelect');
+    const styleDropdown = document.getElementById('styleDropdown');
+    const selectedStyleName = document.getElementById('selectedStyleName');
+    const selectedStyleDesc = document.getElementById('selectedStyleDesc');
+    const selectedStyleIcon = document.getElementById('selectedStyleIcon').querySelector('i');
+
+    // Style data mapping
+    const styleData = {
+        'photorealistic': { icon: 'camera', desc: 'Ultra‑realistic, sharp details' },
+        'digital art': { icon: 'paint-brush', desc: 'Modern, vibrant, illustrated' },
+        'oil painting': { icon: 'palette', desc: 'Classic, textured brushstrokes' },
+        'anime': { icon: 'dragon', desc: 'Japanese animation aesthetic' },
+        'sketch': { icon: 'pencil-alt', desc: 'Hand‑drawn, line art' },
+        '3d render': { icon: 'cube', desc: 'CGI, volumetric, dimensional' },
+        'cinematic': { icon: 'film', desc: 'Movie‑like, dramatic lighting' }
+    };
+
+    function updateSelectedStyle(value) {
+        // Update hidden select
+        hiddenSelect.value = value;
+        
+        // Update dropdown to match
+        styleDropdown.value = value;
+        
+        // Update display text
+        const selectedOption = styleDropdown.options[styleDropdown.selectedIndex];
+        selectedStyleName.textContent = selectedOption.text;
+        selectedStyleDesc.textContent = styleData[value].desc;
+        
+        // Update icon
+        selectedStyleIcon.className = `fas fa-${styleData[value].icon}`;
+        
+        log(`🎨 Style preset: ${value}`, 'info');
+    }
+
+    // Add change event listener to dropdown
+    styleDropdown.addEventListener('change', function() {
+        const value = this.value;
+        updateSelectedStyle(value);
+    });
+
+    // Initial sync - set first style
+    updateSelectedStyle('photorealistic');
+
+    async function generateImage() {
+        const userPrompt = document.getElementById('userPrompt').value;
+        const style = document.getElementById('styleSelect').value;
+        const nodeApiBase = document.getElementById('apiBaseSelect').value;
+        
+        // Define the Flask URL for prompt enhancement
+        const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev';
+        
+        if (!userPrompt.trim()) {
+            alert('Please enter a prompt first.');
+            return;
+        }
+        
+        const sanitizedPrompt = sanitizeInput(userPrompt);
+        const sanitizedStyle = sanitizeInput(style);
+        
+        document.getElementById('hordeResult').innerHTML = '🎨 Enhancing prompt with AI...';
+        generateBtn.disabled = true;
+        
+        try {
+            // Get selected style
+            const selectedStyle = document.getElementById('styleSelect').value;
+
+            // Combine prompt with style before enhancement
+            const promptWithStyle = `${sanitizedPrompt}, ${selectedStyle}`;
+
+            // STEP 1: Enhance the prompt - CALL FLASK DIRECTLY
+            let enhanceResponse;
+            try {
+                enhanceResponse = await fetch(`${flaskUrl}/generate`, {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'ngrok-skip-browser-warning': 'true'
+                    },
+                    body: JSON.stringify({ 
+                        prompt: promptWithStyle,
+                        temperature: 0.9,
+                        top_k: 8,
+                        max_length: 80,
+                        num_return_sequences: 3
+                    })
+                });
+            } catch (e) {
+                log('⚠️ Flask connection failed, using fallback', 'error');
+                enhanceResponse = { ok: false };
+            }
             
-            const htmlContent = `<!DOCTYPE html>
-            <html lang="en">
-            <head>
-                <meta charset="UTF-8">
-                <title>AI Horde · ${safeTitle}</title>
-                <link rel="preconnect" href="https://fonts.googleapis.com">
-                <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
-                <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-                <style>
-                    * { margin: 0; padding: 0; box-sizing: border-box; }
-                    body {
-                        background: linear-gradient(165deg, #0a0a14 0%, #141424 100%);
-                        color: #fff;
-                        font-family: 'Inter', sans-serif;
-                        padding: 30px 20px;
-                        display: flex;
-                        justify-content: center;
+            let enhancedPrompts = [sanitizedPrompt];
+            let enhancedPrompt = sanitizedPrompt;
+            
+            if (enhanceResponse && enhanceResponse.ok) {
+                const enhanceData = await enhanceResponse.json();
+                if (Array.isArray(enhanceData)) {
+                    enhancedPrompts = enhanceData;
+                } else if (enhanceData.enhancedPrompts) {
+                    enhancedPrompts = enhanceData.enhancedPrompts;
+                }
+                enhancedPrompt = enhancedPrompts[0] || sanitizedPrompt;
+                log(`✨ Prompt enhanced via Flask: "${promptWithStyle.substring(0, 50)}..."`, 'info');
+            } else {
+                log('⚠️ Using fallback prompt enhancement', 'info');
+                enhancedPrompts = [
+                    `${promptWithStyle}, highly detailed, masterpiece`,
+                    `${promptWithStyle}, cinematic lighting, 8k quality`,
+                    `${promptWithStyle}, professional photography, sharp focus`
+                ];
+                enhancedPrompt = enhancedPrompts[0];
+            }
+            
+            document.getElementById('hordeResult').innerHTML = '🎨 Generating title with Mistral AI...';
+            
+            try {
+                const titleHeaders = {
+                    'Content-Type': 'application/json'
+                };
+                
+                const titleResponse = await fetch(`${nodeApiBase}/api/generate-title`, {
+                    method: 'POST',
+                    headers: titleHeaders,
+                    body: JSON.stringify({ prompt: enhancedPrompt })
+                });
+                
+                if (titleResponse.ok) {
+                    const data = await titleResponse.json();
+                    
+                    if (data.choices && data.choices[0]) {
+                        const content = data.choices[0].message.content;
+                        const jsonMatch = content.match(/\{[\s\S]*\}/);
+                        
+                        if (jsonMatch) {
+                            try {
+                                const titleData = JSON.parse(jsonMatch[0]);
+                                generatedTitle = titleData.title || 'AI Generated Image';
+                                generatedDescription = titleData.description || '';
+                            } catch (e) {
+                                generatedTitle = 'AI Generated Image';
+                                generatedDescription = '';
+                            }
+                        }
+                    } else if (data.title) {
+                        generatedTitle = data.title;
+                        generatedDescription = data.description || '';
                     }
-                    .container { max-width: 1000px; width: 100%; }
-                    .image-showcase {
-                        background: rgba(18,18,28,0.7);
-                        backdrop-filter: blur(20px);
-                        border-radius: 44px;
-                        overflow: hidden;
-                        margin-bottom: 20px;
-                        border: 1px solid rgba(0,255,247,0.2);
-                        box-shadow: 0 30px 60px -25px #000;
-                    }
-                    .image-gallery {
-                        height: 450px;
-                        background: #0c0c18;
-                        border-radius: 44px 44px 0 0;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    .image-gallery img {
-                        width: 100%; height: 100%; object-fit: contain;
-                        transition: transform 0.3s;
-                    }
-                    .image-info { padding: 30px; }
-                    .image-title {
-                        font-size: 2.5rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif;
-                        background: linear-gradient(to right, #fff, #b5fffd); -webkit-background-clip: text;
-                        background-clip: text; color: transparent;
-                    }
-                    .prompt-box {
-                        background: rgba(0,0,0,0.3); border-left: 4px solid #00fff7;
-                        padding: 20px; border-radius: 30px; margin: 20px 0;
-                    }
-                    .scrolling-prompt {
-                        white-space: nowrap; animation: scrollText 40s linear infinite;
-                        color: #fff; font-size: 1.1rem;
-                    }
-                    @keyframes scrollText {
-                        0% { transform: translateX(100%); } 50% { transform: translateX(-100%); } 100% { transform: translateX(100%); }
-                    }
-                    .enhanced-prompts { background: rgba(0,0,0,0.2); border-radius: 30px; padding: 15px; margin-top: 15px; }
-                    .enhanced-item { padding: 10px; margin: 5px 0; border-radius: 40px; cursor: pointer; transition: 0.2s; }
-                    .enhanced-item:hover { background: rgba(0,255,247,0.1); border-left: 4px solid #00fff7; }
-                    .enhanced-item.selected { border-left: 4px solid #00fff7; background: rgba(0,255,247,0.05); }
-                    .status-bar {
-                        background: rgba(8,8,16,0.8); backdrop-filter: blur(15px);
-                        border-radius: 60px; padding: 15px 25px; border-left: 6px solid #00fff7;
-                        display: flex; align-items: center; gap: 15px;
-                    }
-                    .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #00fff7; width: 30px; height: 30px; border-radius: 50%; animation: spin 1s linear infinite; }
-                    @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
-                    .download-btn {
-                        background: #00fff7; color: #000; padding: 8px 20px; border-radius: 40px;
-                        font-weight: 600; text-decoration: none; transition: 0.2s;
-                    }
-                    .download-btn:hover { background: #6efff7; transform: translateY(-2px); }
-                </style>
-            </head>
-            <body>
-            <div class="container">
-                <div class="image-showcase">
-                    <div class="image-gallery">
-                        <img id="mainImage" src="https://source.unsplash.com/800x600/?${encodeURIComponent(safeTitle.split(' ').slice(0,3).join(','))}&${Date.now()}" alt="${safeTitle}">
-                    </div>
-                    <div class="image-info">
-                        <h1 class="image-title">${safeTitle}</h1>
-                        ${safeDescription ? `<p style="color:#b0b8c0;">${safeDescription}</p>` : ''}
-                        <div class="prompt-box">
-                            <div style="color:#00fff7;">Current prompt</div>
-                            <div class="scrolling-prompt" id="currentPrompt">${safePrompt}</div>
-                        </div>
-                        ${safeEnhancedPrompts.length > 1 ? `
-                        <div class="enhanced-prompts">
-                            <div style="color:#00fff7;">✨ Enhanced versions</div>
-                            ${safeEnhancedPrompts.map((p, idx) => `
-                                <div class="enhanced-item ${idx === 0 ? 'selected' : ''}" 
-                                    onclick="selectPrompt(${idx}, '${p.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
-                                    <i class="fas fa-magic" style="color:#00fff7;"></i> Version ${idx+1}: ${p.substring(0,60)}...
-                                </div>`).join('')}
-                        </div>` : ''}
-                    </div>
+                    
+                    log(`✨ Title generated: "${generatedTitle}"`, 'success');
+                }
+            } catch (e) {
+                log('⚠️ Using default title', 'info');
+                generatedTitle = 'AI Generated Image';
+                generatedDescription = '';
+            }
+            
+            const finalPrompt = enhancedPrompt;
+            
+            // STEP 3: Open generation tab with enhanced prompt
+            openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts, nodeApiBase);
+            document.getElementById('hordeResult').innerHTML = `✅ New tab opened: "${generatedTitle}" (Enhanced prompt)`;
+            log(`🎨 Opened generation tab with enhanced prompt`, 'success');
+            
+        } catch (error) {
+            console.error('Error in generateImage:', error);
+            log(`❌ Error: ${error.message}`, 'error');
+            const finalPrompt = `${sanitizedPrompt}, ${sanitizedStyle}`;
+            openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], nodeApiBase);
+            document.getElementById('hordeResult').innerHTML = `✅ New tab opened (using original prompt)`;
+        } finally {
+            generateBtn.disabled = false;
+        }
+    }
+
+    function openGenerationTab(finalPrompt, title, description, enhancedPrompts = [], apiBase) {
+        const safeTitle = sanitizeInput(title);
+        const safeDescription = sanitizeInput(description);
+        const safePrompt = sanitizeInput(finalPrompt);
+        const safeEnhancedPrompts = enhancedPrompts.map(p => sanitizeInput(p));
+        const safeApiBase = apiBase;
+        
+        const htmlContent = `<!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <title>AI Horde · ${safeTitle}</title>
+            <link rel="preconnect" href="https://fonts.googleapis.com">
+            <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+            <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+            <style>
+                * { margin: 0; padding: 0; box-sizing: border-box; }
+                body {
+                    background: linear-gradient(165deg, #0a0a14 0%, #141424 100%);
+                    color: #fff;
+                    font-family: 'Inter', sans-serif;
+                    padding: 30px 20px;
+                    display: flex;
+                    justify-content: center;
+                }
+                .container { max-width: 1000px; width: 100%; }
+                .image-showcase {
+                    background: rgba(18,18,28,0.7);
+                    backdrop-filter: blur(20px);
+                    border-radius: 44px;
+                    overflow: hidden;
+                    margin-bottom: 20px;
+                    border: 1px solid rgba(0,255,247,0.2);
+                    box-shadow: 0 30px 60px -25px #000;
+                }
+                .image-gallery {
+                    height: 450px;
+                    background: #0c0c18;
+                    border-radius: 44px 44px 0 0;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                }
+                .image-gallery img {
+                    width: 100%; height: 100%; object-fit: contain;
+                    transition: transform 0.3s;
+                }
+                .image-info { padding: 30px; }
+                .image-title {
+                    font-size: 2.5rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif;
+                    background: linear-gradient(to right, #fff, #b5fffd); -webkit-background-clip: text;
+                    background-clip: text; color: transparent;
+                }
+                .prompt-box {
+                    background: rgba(0,0,0,0.3); border-left: 4px solid #00fff7;
+                    padding: 20px; border-radius: 30px; margin: 20px 0;
+                }
+                .scrolling-prompt {
+                    white-space: nowrap; animation: scrollText 40s linear infinite;
+                    color: #fff; font-size: 1.1rem;
+                }
+                @keyframes scrollText {
+                    0% { transform: translateX(100%); } 50% { transform: translateX(-100%); } 100% { transform: translateX(100%); }
+                }
+                .enhanced-prompts { background: rgba(0,0,0,0.2); border-radius: 30px; padding: 15px; margin-top: 15px; }
+                .enhanced-item { padding: 10px; margin: 5px 0; border-radius: 40px; cursor: pointer; transition: 0.2s; }
+                .enhanced-item:hover { background: rgba(0,255,247,0.1); border-left: 4px solid #00fff7; }
+                .enhanced-item.selected { border-left: 4px solid #00fff7; background: rgba(0,255,247,0.05); }
+                .status-bar {
+                    background: rgba(8,8,16,0.8); backdrop-filter: blur(15px);
+                    border-radius: 60px; padding: 15px 25px; border-left: 6px solid #00fff7;
+                    display: flex; align-items: center; gap: 15px;
+                }
+                .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #00fff7; width: 30px; height: 30px; border-radius: 50%; animation: spin 1s linear infinite; }
+                @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
+                .download-btn {
+                    background: #00fff7; color: #000; padding: 8px 20px; border-radius: 40px;
+                    font-weight: 600; text-decoration: none; transition: 0.2s;
+                }
+                .download-btn:hover { background: #6efff7; transform: translateY(-2px); }
+            </style>
+        </head>
+        <body>
+        <div class="container">
+            <div class="image-showcase">
+                <div class="image-gallery">
+                    <img id="mainImage" src="https://source.unsplash.com/800x600/?${encodeURIComponent(safeTitle.split(' ').slice(0,3).join(','))}&${Date.now()}" alt="${safeTitle}">
                 </div>
-                <div class="status-bar">
-                    <span class="loader" id="loader"></span>
-                    <div id="status">Starting AI image generation...</div>
-                    <div class="button-group">
-                        <button class="download-btn" id="regenerateBtn" onclick="regenerateCurrentImage()" style="display:none;"><i class="fas fa-sync-alt"></i> Regenerate</button>
-                        <div id="downloadContainer"></div>
+                <div class="image-info">
+                    <h1 class="image-title">${safeTitle}</h1>
+                    ${safeDescription ? `<p style="color:#b0b8c0;">${safeDescription}</p>` : ''}
+                    <div class="prompt-box">
+                        <div style="color:#00fff7;">Current prompt</div>
+                        <div class="scrolling-prompt" id="currentPrompt">${safePrompt}</div>
                     </div>
+                    ${safeEnhancedPrompts.length > 1 ? `
+                    <div class="enhanced-prompts">
+                        <div style="color:#00fff7;">✨ Enhanced versions</div>
+                        ${safeEnhancedPrompts.map((p, idx) => `
+                            <div class="enhanced-item ${idx === 0 ? 'selected' : ''}" 
+                                onclick="selectPrompt(${idx}, '${p.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
+                                <i class="fas fa-magic" style="color:#00fff7;"></i> Version ${idx+1}: ${p.substring(0,60)}...
+                            </div>`).join('')}
+                    </div>` : ''}
                 </div>
             </div>
-            <script>
-                const API_BASE = "${safeApiBase}";
-                let currentPrompt = "${safePrompt.replace(/"/g, '\\"').replace(/'/g, "\\'")}";
-                let generatedImages = {};
-                let isGenerating = false;
+            <div class="status-bar">
+                <span class="loader" id="loader"></span>
+                <div id="status">Starting AI image generation...</div>
+                <div class="button-group">
+                    <button class="download-btn" id="regenerateBtn" onclick="regenerateCurrentImage()" style="display:none;"><i class="fas fa-sync-alt"></i> Regenerate</button>
+                    <div id="downloadContainer"></div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const API_BASE = "${safeApiBase}";
+            let currentPrompt = "${safePrompt.replace(/"/g, '\\"').replace(/'/g, "\\'")}";
+            let generatedImages = {};
+            let isGenerating = false;
 
-                window.selectPrompt = function(idx, prompt) {
-                    const decoded = prompt.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-                    currentPrompt = decoded;
-                    document.getElementById('currentPrompt').innerText = decoded;
-                    document.querySelectorAll('.enhanced-item').forEach((el,i) => {
-                        if(i===idx) el.classList.add('selected'); else el.classList.remove('selected');
+            window.selectPrompt = function(idx, prompt) {
+                const decoded = prompt.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+                currentPrompt = decoded;
+                document.getElementById('currentPrompt').innerText = decoded;
+                document.querySelectorAll('.enhanced-item').forEach((el,i) => {
+                    if(i===idx) el.classList.add('selected'); else el.classList.remove('selected');
+                });
+                if(generatedImages[decoded]) {
+                    document.getElementById('mainImage').src = generatedImages[decoded];
+                    document.getElementById('status').innerHTML = '✅ Using cached image';
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('regenerateBtn').style.display = 'inline-block';
+                    document.getElementById('downloadContainer').innerHTML = '<a href="'+generatedImages[decoded]+'" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> View</a>';
+                } else { regenerateWithPrompt(decoded); }
+            };
+            window.regenerateCurrentImage = ()=> { if(!isGenerating) regenerateWithPrompt(currentPrompt); };
+            async function regenerateWithPrompt(p) {
+                if(isGenerating) return;
+                isGenerating = true;
+                document.getElementById('loader').style.display = 'inline-block';
+                document.getElementById('regenerateBtn').style.display = 'none';
+                document.getElementById('status').innerHTML = 'Regenerating...';
+                document.getElementById('downloadContainer').innerHTML = '';
+                try {
+                    const r = await fetch(API_BASE+'/api/generate-image', {
+                        method:'POST', headers:{'Content-Type':'application/json'},
+                        body: JSON.stringify({prompt:p})
                     });
-                    if(generatedImages[decoded]) {
-                        document.getElementById('mainImage').src = generatedImages[decoded];
-                        document.getElementById('status').innerHTML = '✅ Using cached image';
-                        document.getElementById('loader').style.display = 'none';
-                        document.getElementById('regenerateBtn').style.display = 'inline-block';
-                        document.getElementById('downloadContainer').innerHTML = '<a href="'+generatedImages[decoded]+'" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> View</a>';
-                    } else { regenerateWithPrompt(decoded); }
-                };
-                window.regenerateCurrentImage = ()=> { if(!isGenerating) regenerateWithPrompt(currentPrompt); };
-                async function regenerateWithPrompt(p) {
-                    if(isGenerating) return;
-                    isGenerating = true;
-                    document.getElementById('loader').style.display = 'inline-block';
-                    document.getElementById('regenerateBtn').style.display = 'none';
-                    document.getElementById('status').innerHTML = 'Regenerating...';
-                    document.getElementById('downloadContainer').innerHTML = '';
-                    try {
-                        const r = await fetch(API_BASE+'/api/generate-image', {
-                            method:'POST', headers:{'Content-Type':'application/json'},
-                            body: JSON.stringify({prompt:p})
-                        });
-                        if(!r.ok) throw new Error('failed');
-                        const d = await r.json();
-                        pollStatus(d.id, p);
-                    } catch(e) {
-                        document.getElementById('loader').style.display = 'none';
-                        document.getElementById('status').innerHTML = '❌ Error';
-                        isGenerating = false;
-                        document.getElementById('regenerateBtn').style.display = 'inline-block';
-                    }
+                    if(!r.ok) throw new Error('failed');
+                    const d = await r.json();
+                    pollStatus(d.id, p);
+                } catch(e) {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('status').innerHTML = '❌ Error';
+                    isGenerating = false;
+                    document.getElementById('regenerateBtn').style.display = 'inline-block';
                 }
-                async function pollStatus(id, p) {
-                    const s = document.getElementById('status');
-                    const loader = document.getElementById('loader');
-                    const download = document.getElementById('downloadContainer');
-                    const img = document.getElementById('mainImage');
-                    const regen = document.getElementById('regenerateBtn');
-                    let attempts = 0;
-                    const poll = setInterval(async ()=>{
-                        try {
-                            const stat = await fetch(API_BASE+'/api/image-status/'+id);
-                            const st = await stat.json();
-                            if(st.done && st.generations && st.generations[0]) {
-                                clearInterval(poll);
-                                const url = st.generations[0].img;
-                                loader.style.display = 'none';
-                                s.innerHTML = '✅ Image generated';
-                                img.src = url;
-                                generatedImages[p] = url;
-                                regen.style.display = 'inline-block';
-                                download.innerHTML = '<a href="'+url+'" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> View</a>';
-                                isGenerating = false;
-                            } else if(st.faulted) {
-                                clearInterval(poll); loader.style.display = 'none'; s.innerHTML = '❌ Failed'; regen.style.display = 'inline-block'; isGenerating = false;
-                            } else if(attempts++>40) {
-                                clearInterval(poll); loader.style.display = 'none'; s.innerHTML = '⚠️ Timeout'; regen.style.display = 'inline-block'; isGenerating = false;
-                            } else {
-                                s.innerHTML = '⏳ Queue: '+(st.queue_position||'...');
-                            }
-                        } catch(e){}
-                    }, 4000);
-                }
-                // auto start
-                (async function auto() {
+            }
+            async function pollStatus(id, p) {
+                const s = document.getElementById('status');
+                const loader = document.getElementById('loader');
+                const download = document.getElementById('downloadContainer');
+                const img = document.getElementById('mainImage');
+                const regen = document.getElementById('regenerateBtn');
+                let attempts = 0;
+                const poll = setInterval(async ()=>{
                     try {
-                        const r = await fetch(API_BASE+'/api/generate-image', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt:currentPrompt}) });
-                        if(!r.ok) throw new Error('failed');
-                        const d = await r.json();
-                        pollStatus(d.id, currentPrompt);
-                    } catch(e) {
-                        document.getElementById('loader').style.display = 'none';
-                        document.getElementById('status').innerHTML = '❌ Error starting';
-                        document.getElementById('regenerateBtn').style.display = 'inline-block';
-                        isGenerating = false;
-                    }
-                })();
-            <\/script>
-            </body>
-            </html>`;
-            
-            const newTab = window.open();
-            newTab.document.write(htmlContent);
-            newTab.document.close();
-        }
+                        const stat = await fetch(API_BASE+'/api/image-status/'+id);
+                        const st = await stat.json();
+                        if(st.done && st.generations && st.generations[0]) {
+                            clearInterval(poll);
+                            const url = st.generations[0].img;
+                            loader.style.display = 'none';
+                            s.innerHTML = '✅ Image generated';
+                            img.src = url;
+                            generatedImages[p] = url;
+                            regen.style.display = 'inline-block';
+                            download.innerHTML = '<a href="'+url+'" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> View</a>';
+                            isGenerating = false;
+                        } else if(st.faulted) {
+                            clearInterval(poll); loader.style.display = 'none'; s.innerHTML = '❌ Failed'; regen.style.display = 'inline-block'; isGenerating = false;
+                        } else if(attempts++>40) {
+                            clearInterval(poll); loader.style.display = 'none'; s.innerHTML = '⚠️ Timeout'; regen.style.display = 'inline-block'; isGenerating = false;
+                        } else {
+                            s.innerHTML = '⏳ Queue: '+(st.queue_position||'...');
+                        }
+                    } catch(e){}
+                }, 4000);
+            }
+            // auto start
+            (async function auto() {
+                try {
+                    const r = await fetch(API_BASE+'/api/generate-image', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt:currentPrompt}) });
+                    if(!r.ok) throw new Error('failed');
+                    const d = await r.json();
+                    pollStatus(d.id, currentPrompt);
+                } catch(e) {
+                    document.getElementById('loader').style.display = 'none';
+                    document.getElementById('status').innerHTML = '❌ Error starting';
+                    document.getElementById('regenerateBtn').style.display = 'inline-block';
+                    isGenerating = false;
+                }
+            })();
+        <\/script>
+        </body>
+        </html>`;
+        
+        const newTab = window.open();
+        newTab.document.write(htmlContent);
+        newTab.document.close();
+    }
 
-        window.onload = function() {
-            document.getElementById('apiBaseSelect').value = 'https://hackathon-thkh.onrender.com';
-            selectedApiBase = 'https://hackathon-thkh.onrender.com';
-            testBackendConnection();
-            log('🚀 Using Render Node.js backend', 'info');
-            log('💡 Flask ngrok URL is used only for prompt enhancement', 'info');
-        };
+    window.onload = function() {
+        document.getElementById('apiBaseSelect').value = 'https://hackathon-thkh.onrender.com';
+        selectedApiBase = 'https://hackathon-thkh.onrender.com';
+        testBackendConnection();
+        log('🚀 Using Render Node.js backend', 'info');
+        log('💡 Flask ngrok URL is used only for prompt enhancement', 'info');
+        
+        // Ensure style selector is properly initialized
+        updateSelectedStyle('photorealistic');
+    };
 
-        const backBtn = document.getElementById('backToTop');
-        window.addEventListener('scroll', () => {
-            backBtn.style.opacity = window.scrollY > 300 ? '1' : '0';
-        });
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+    const backBtn = document.getElementById('backToTop');
+    window.addEventListener('scroll', () => {
+        backBtn.style.opacity = window.scrollY > 300 ? '1' : '0';
+    });
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
         anchor.addEventListener('click', function(e) {
             e.preventDefault();
             const id = this.getAttribute('href');
