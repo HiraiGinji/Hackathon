@@ -1,0 +1,10 @@
+flask
+flask-restful
+flask-limiter
+flask-cors
+transformers
+torch
+gpt2
+gunicorn
+requests
+numpy

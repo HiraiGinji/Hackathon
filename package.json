@@ -1,0 +1,13 @@
+{
+  "name": "qptech",
+  "version": "1.0.0",
+  "description": "QPTech AI Image Generator",
+  "scripts": {
+    "start": "node backend/server.js",
+    "dev": "nodemon backend/server.js",
+    "postinstall": "cd backend && npm install"
+  },
+  "engines": {
+    "node": "18.x"
+  }
+}
