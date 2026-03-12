@@ -2,21 +2,208 @@ const express = require('express');
 const cors = require('cors');
 const fetch = require('node-fetch');
 const path = require('path');
+const FormData = require('form-data');
+const fs = require('fs');
+const multer = require('multer');
 require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
+// Configure multer for file uploads
+const upload = multer({ dest: 'uploads/' });
+
 // Middleware
 app.use(cors());
-app.use(express.json());
+app.use(express.json({ limit: '50mb' }));
+app.use(express.urlencoded({ extended: true, limit: '50mb' }));
 
 app.use(express.static(path.join(__dirname, '../frontend')));
+
+// Create uploads directory if it doesn't exist
+if (!fs.existsSync('uploads')) {
+    fs.mkdirSync('uploads');
+}
 
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Backend is running' });
 });
+
+// ============= TRIPO3D API INTEGRATION =============
+
+// Tripo3D configuration
+const TRIPO_API_KEY = process.env.TRIPO_API_KEY;
+const TRIPO_BASE_URL = "https://api.tripo3d.ai/v2/openapi";
+
+// Helper function for Tripo3D API calls
+async function callTripoAPI(endpoint, method = 'GET', body = null, isJson = true) {
+    const url = `${TRIPO_BASE_URL}${endpoint}`;
+    const headers = {
+        'Authorization': `Bearer ${TRIPO_API_KEY}`
+    };
+    
+    if (isJson) {
+        headers['Content-Type'] = 'application/json';
+    }
+    
+    const options = {
+        method,
+        headers
+    };
+    
+    if (body) {
+        if (isJson) {
+            options.body = JSON.stringify(body);
+        } else {
+            options.body = body;
+        }
+    }
+    
+    const response = await fetch(url, options);
+    const data = await response.json();
+    
+    if (data.code !== 0) {
+        throw new Error(`Tripo3D API error: ${data.message || 'Unknown error'}`);
+    }
+    
+    return data.data;
+}
+
+// Check Tripo3D balance
+app.get('/api/tripo/balance', async (req, res) => {
+    try {
+        const data = await callTripoAPI('/user/balance');
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Tripo balance error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Upload image to Tripo3D
+app.post('/api/tripo/upload', upload.single('image'), async (req, res) => {
+    try {
+        if (!req.file) {
+            return res.status(400).json({ success: false, error: 'No image uploaded' });
+        }
+        
+        const formData = new FormData();
+        formData.append('file', fs.createReadStream(req.file.path), {
+            filename: req.file.originalname,
+            contentType: req.file.mimetype
+        });
+        
+        const response = await fetch(`${TRIPO_BASE_URL}/upload/sts`, {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${TRIPO_API_KEY}`
+            },
+            body: formData
+        });
+        
+        const data = await response.json();
+        
+        // Clean up uploaded file
+        fs.unlinkSync(req.file.path);
+        
+        if (data.code !== 0) {
+            throw new Error(data.message || 'Upload failed');
+        }
+        
+        res.json({ success: true, image_token: data.data.image_token });
+    } catch (error) {
+        console.error('Tripo upload error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Submit image-to-3d task
+app.post('/api/tripo/generate', async (req, res) => {
+    try {
+        const { image_token, model_version = "v2.5-20250123", refine = false } = req.body;
+        
+        if (!image_token) {
+            return res.status(400).json({ success: false, error: 'Image token required' });
+        }
+        
+        const taskData = {
+            type: "image_to_model",
+            model_version,
+            file: {
+                type: "jpg",
+                file_token: image_token
+            }
+        };
+        
+        const data = await callTripoAPI('/task', 'POST', taskData);
+        res.json({ success: true, task_id: data.task_id });
+    } catch (error) {
+        console.error('Tripo generate error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Check task status
+app.get('/api/tripo/task/:taskId', async (req, res) => {
+    try {
+        const { taskId } = req.params;
+        const data = await callTripoAPI(`/task/${taskId}`);
+        res.json({ success: true, data });
+    } catch (error) {
+        console.error('Tripo task status error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Submit refine task
+app.post('/api/tripo/refine', async (req, res) => {
+    try {
+        const { task_id } = req.body;
+        
+        if (!task_id) {
+            return res.status(400).json({ success: false, error: 'Task ID required' });
+        }
+        
+        const taskData = {
+            type: "refine_model",
+            draft_model_task_id: task_id
+        };
+        
+        const data = await callTripoAPI('/task', 'POST', taskData);
+        res.json({ success: true, task_id: data.task_id });
+    } catch (error) {
+        console.error('Tripo refine error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// Convert model format
+app.post('/api/tripo/convert', async (req, res) => {
+    try {
+        const { task_id, format = "GLTF", quad = false, face_limit = 10000 } = req.body;
+        
+        if (!task_id) {
+            return res.status(400).json({ success: false, error: 'Task ID required' });
+        }
+        
+        const taskData = {
+            type: "convert_model",
+            format,
+            original_model_task_id: task_id,
+            quad,
+            face_limit
+        };
+        
+        const data = await callTripoAPI('/task', 'POST', taskData);
+        res.json({ success: true, task_id: data.task_id });
+    } catch (error) {
+        console.error('Tripo convert error:', error);
+        res.status(500).json({ success: false, error: error.message });
+    }
+});
+
+// ============= EXISTING ENDPOINTS =============
 
 // Generate car recommendations using Mistral AI
 app.post('/api/generate-car-recommendations', async (req, res) => {
@@ -183,27 +370,20 @@ app.post('/api/enhance-prompt', async (req, res) => {
 
         console.log('Enhancing prompt:', prompt);
 
-        // Get the prompt generator URL from environment or use default
-        // Check if we're using ngrok tunnel
         let promptGeneratorUrl = process.env.PROMPT_GENERATOR_URL;
         
-        // If no env var set, try to determine the best URL
         if (!promptGeneratorUrl) {
-            // Check if we're in development vs production
             if (process.env.NODE_ENV === 'production') {
-                // In production, use the ngrok URL if available, otherwise fallback to localhost
                 promptGeneratorUrl = process.env.NGROK_URL || 'http://localhost:5000/generate';
             } else {
-                // In development, use localhost
                 promptGeneratorUrl = 'http://localhost:5000/generate';
             }
         }
 
         console.log(`Calling prompt generator at: ${promptGeneratorUrl}`);
 
-        // Add timeout to prevent hanging
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
         try {
             const response = await fetch(promptGeneratorUrl, {
@@ -224,14 +404,6 @@ app.post('/api/enhance-prompt', async (req, res) => {
             clearTimeout(timeoutId);
 
             if (!response.ok) {
-                const errorText = await response.text();
-                console.error('========== PROMPT GENERATOR ERROR ==========');
-                console.error('Status Code:', response.status);
-                console.error('Status Text:', response.statusText);
-                console.error('URL Called:', promptGeneratorUrl);
-                console.error('===========================================');
-                
-                // Fallback to simple enhanced prompts
                 const fallbackPrompts = [
                     `${prompt}, highly detailed, masterpiece, trending on ArtStation`,
                     `${prompt}, cinematic lighting, 8k resolution, professional photography`,
@@ -247,7 +419,6 @@ app.post('/api/enhance-prompt', async (req, res) => {
 
             const data = await response.json();
             
-            // Handle different response formats
             let enhancedPrompts = [];
             if (Array.isArray(data)) {
                 enhancedPrompts = data;
@@ -265,13 +436,6 @@ app.post('/api/enhance-prompt', async (req, res) => {
         } catch (fetchError) {
             clearTimeout(timeoutId);
             
-            if (fetchError.name === 'AbortError') {
-                console.error('Prompt generator request timed out');
-            } else {
-                console.error('Fetch error:', fetchError.message);
-            }
-            
-            // Fallback to simple enhanced prompts
             const fallbackPrompts = [
                 `${prompt}, highly detailed, masterpiece, trending on ArtStation`,
                 `${prompt}, cinematic lighting, 8k resolution, professional photography`,
@@ -287,7 +451,6 @@ app.post('/api/enhance-prompt', async (req, res) => {
         
     } catch (error) {
         console.error('Error in enhance-prompt:', error);
-        // Fallback to original prompt with simple enhancements
         const fallbackPrompts = [
             `${prompt}, highly detailed`,
             `${prompt}, cinematic lighting`,
@@ -300,7 +463,45 @@ app.post('/api/enhance-prompt', async (req, res) => {
     }
 });
 
-// New endpoint to check prompt generator status
+// Proxy for Tripo3D models to avoid CORS
+app.get('/api/tripo/proxy-model', async (req, res) => {
+    try {
+        const { url } = req.query;
+        
+        if (!url) {
+            return res.status(400).json({ error: 'URL parameter required' });
+        }
+
+        console.log('Proxying model from:', url);
+
+        const response = await fetch(url, {
+            headers: {
+                'User-Agent': 'Mozilla/5.0'
+            }
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch model: ${response.status}`);
+        }
+
+        // Get the content type from the response
+        const contentType = response.headers.get('content-type') || 'model/gltf-binary';
+        
+        // Set appropriate headers
+        res.setHeader('Content-Type', contentType);
+        res.setHeader('Access-Control-Allow-Origin', '*');
+        res.setHeader('Access-Control-Allow-Methods', 'GET');
+        
+        // Stream the response to the client
+        response.body.pipe(res);
+        
+    } catch (error) {
+        console.error('Proxy error:', error);
+        res.status(500).json({ error: error.message });
+    }
+});
+
+// Check prompt generator status
 app.get('/api/prompt-generator-status', async (req, res) => {
     try {
         const promptGeneratorUrl = process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/health';
@@ -344,9 +545,9 @@ app.listen(PORT, () => {
     console.log(`📝 Health check: http://localhost:${PORT}/api/health`);
     console.log(`🔑 Mistral API Key: ${process.env.MISTRAL_API_KEY ? '✓ Loaded' : '✗ Missing'}`);
     console.log(`🔑 Horde API Key: ${process.env.HORDE_API_KEY ? '✓ Loaded' : '✗ Missing'}`);
+    console.log(`🔑 Tripo3D API Key: ${process.env.TRIPO_API_KEY ? '✓ Loaded' : '✗ Missing'}`);
     console.log(`🤖 Prompt Generator: ${process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/generate (default)'}`);
     
-    // Show ngrok info if configured
     if (process.env.NGROK_URL) {
         console.log(`🌐 Using ngrok tunnel: ${process.env.NGROK_URL}`);
     }

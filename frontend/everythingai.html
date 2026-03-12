@@ -455,6 +455,7 @@
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#">Generate AI Image</a></li>
                     <li class="nav-item"><a class="nav-link" href="car.html">Create your Dream Car</a></li>
+                    <li class="nav-item"><a class="nav-link" href="3dmodel.html">Generate 3D Model</a></li>
                 </ul>
             </div>
         </div>
@@ -738,9 +739,11 @@
         async function generateImage() {
             const userPrompt = document.getElementById('userPrompt').value;
             const style = document.getElementById('styleSelect').value;
-            const apiBase = getApiBaseUrl();
+            const nodeApiBase = document.getElementById('apiBaseSelect').value; // Node.js backend
+            const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev'; // Flask for prompt enhancement
             const generateBtn = document.getElementById('generateBtn');
             
+            // Define the Flask URL for prompt enhancement
             const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev';
             
             if (!userPrompt.trim()) {
@@ -755,11 +758,16 @@
             generateBtn.disabled = true;
             
             try {
-                const promptWithStyle = `${sanitizedPrompt}, ${sanitizedStyle}`;
+                // Get selected style
+                const selectedStyle = document.getElementById('styleSelect').value;
 
+                // Combine prompt with style before enhancement
+                const promptWithStyle = `${sanitizedPrompt}, ${selectedStyle}`;
+
+                // STEP 1: Enhance the prompt - CALL FLASK DIRECTLY (since that's where /generate exists)
                 let enhanceResponse;
                 try {
-                    enhanceResponse = await fetch(`${flaskUrl}/generate`, {
+                    enhanceResponse = await fetch(`${flaskUrl}/generate`, {  // Note: using /generate, not /api/generate
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
@@ -803,7 +811,10 @@
                 document.getElementById('hordeResult').innerHTML = '🎨 Generating title with Mistral AI...';
                 
                 try {
-                    const titleHeaders = { 'Content-Type': 'application/json' };
+                    const titleHeaders = {
+                        'Content-Type': 'application/json'
+                    };
+                    
                     const titleResponse = await fetch(`${apiBase}/api/generate-title`, {
                         method: 'POST',
                         headers: titleHeaders,
@@ -841,6 +852,8 @@
                 }
                 
                 const finalPrompt = enhancedPrompt;
+                
+                // STEP 3: Open generation tab with enhanced prompt - USE NODE.JS BACKEND FOR IMAGE GEN
                 openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts, apiBase);
                 document.getElementById('hordeResult').innerHTML = `✅ New tab opened: "${generatedTitle}" (Enhanced prompt)`;
                 log(`🎨 Opened generation tab with enhanced prompt`, 'success');
@@ -849,7 +862,7 @@
                 console.error('Error in generateImage:', error);
                 log(`❌ Error: ${error.message}`, 'error');
                 const finalPrompt = `${sanitizedPrompt}, ${sanitizedStyle}`;
-                openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], apiBase);
+                openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], nodeApiBase);
                 document.getElementById('hordeResult').innerHTML = `✅ New tab opened (using original prompt)`;
             } finally {
                 generateBtn.disabled = false;
