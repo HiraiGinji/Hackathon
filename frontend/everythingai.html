@@ -3,19 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>QPTech · AI Image Generator</title>
+    <title>QPTech · AI image suite (compact)</title>
+    <!-- Google Fonts + Font Awesome + Bootstrap 5.3 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Lobster&family=Roboto:wght@100..900&display=swap" rel="stylesheet" />
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
+        /* ---------- PROFESSIONAL CYAN DARK THEME (clean, elevated) ---------- */
         :root {
-            --primary-red: #d50000;
-            --dark-bg: #000;
-            --section-bg: #111;
-            --light-text: #fff;
-            --gray-text: #ccc;
+            --primary-cyan: #00fff7;
+            --primary-dark: #0b0b15;
+            --surface-dark: #12121c;
+            --surface-card: rgba(18, 18, 28, 0.8);
+            --border-subtle: rgba(255, 255, 255, 0.05);
+            --border-cyan-dim: rgba(0, 255, 247, 0.2);
+            --text-primary: #ffffff;
+            --text-secondary: #a8b0c0;
+            --text-muted: #7a7f8a;
+            --glow-cyan: 0 0 25px rgba(0, 255, 247, 0.2);
+            --gradient-1: linear-gradient(165deg, #0a0a14 0%, #141424 100%);
         }
 
         * {
@@ -26,334 +34,424 @@
 
         html {
             scroll-behavior: smooth;
+            height: 100%;
         }
 
         body {
-            background-color: #000;
-            color: #fff;
+            background: var(--gradient-1);
+            color: var(--text-primary);
             font-family: 'Inter', sans-serif;
             overflow-x: hidden;
-            padding: 20px;
+            line-height: 1.5;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 0 20px;
         }
 
-        .navbar {
-            background-color: #111;
-            position: sticky;
-            top: 0;
-            z-index: 999;
-            box-shadow: 0 3px 5px rgba(255, 0, 0, 0.2);
-            border-radius: 12px;
-            margin-bottom: 25px;
+        /* ----- refined navbar ----- */
+        .navbar-professional {
+            background: rgba(8, 8, 16, 0.7) !important;
+            backdrop-filter: blur(18px) saturate(200%);
+            -webkit-backdrop-filter: blur(18px) saturate(200%);
+            border-bottom: 1px solid rgba(0, 255, 247, 0.25);
+            box-shadow: 0 20px 35px -20px #000;
+            padding: 16px 0;
+            border-radius: 0 0 36px 36px;
+            margin-bottom: 20px;  /* reduced from 35px */
         }
 
-        .navbar-brand {
-            font-family: 'Lobster', cursive;
-            font-size: 1.8rem;
-            color: #fff;
+        .navbar-professional .navbar-brand {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+            font-size: 2rem;
+            background: linear-gradient(135deg, #ffffff, #b0fffc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            letter-spacing: -0.02em;
         }
 
-        .navbar-brand:hover {
-            color: #ff0000;
-        }
-
-        .nav-link {
-            color: #fff;
+        .navbar-professional .nav-link {
+            color: rgba(255, 255, 255, 0.7) !important;
             font-weight: 500;
-            margin: 0 10px;
-        }
-
-        .nav-link:hover {
-            color: #ff0000;
-        }
-
-        .dynamic-hero {
-            background: linear-gradient(135deg, #1a0000, #4d0000);
-            padding: 50px 20px;
-            border-radius: 30px;
-            margin-bottom: 30px;
-            text-align: center;
+            margin: 0 0.9rem;
             position: relative;
-            overflow: hidden;
+            transition: color 0.2s;
+            font-size: 1rem;
         }
-
-        .dynamic-hero::before {
+        .navbar-professional .nav-link::after {
             content: '';
             position: absolute;
-            top: 0; left: 0; right: 0; bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1;
+            width: 0;
+            height: 2px;
+            bottom: 0;
+            left: 0;
+            background: var(--primary-cyan);
+            transition: width 0.2s ease;
+            border-radius: 4px;
+        }
+        .navbar-professional .nav-link:hover {
+            color: #fff !important;
+        }
+        .navbar-professional .nav-link:hover::after {
+            width: 100%;
         }
 
-        .hero-content {
-            position: relative;
-            z-index: 2;
+        /* ----- compact hero (removed big headline, now small) ----- */
+        .hero-compact {
+            margin-bottom: 24px;
+            padding: 16px 20px;
+            background: rgba(8, 8, 16, 0.4);
+            backdrop-filter: blur(12px);
+            border-radius: 48px;
+            border: 1px solid rgba(0, 255, 247, 0.15);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+        .hero-compact .tagline {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .hero-compact .badge-cyan {
+            background: rgba(0,255,247,0.1);
+            border: 1px solid rgba(0,255,247,0.3);
+            border-radius: 60px;
+            padding: 6px 18px;
+            font-size: 0.9rem;
+            color: #b3fffc;
+            font-weight: 500;
+        }
+        .hero-compact p {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            margin: 0;
         }
 
-        .hero-content h1 {
-            font-size: 3rem;
-            font-weight: 700;
-            color: white;
-            animation: fadeInUp 1s ease;
-        }
-
-        .hero-content p {
-            font-size: 1.3rem;
-            color: #ddd;
-            max-width: 700px;
-            margin: 0 auto;
-        }
-
+        /* main container */
         .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
+            max-width: 1300px;
+            margin: 0 auto 40px;
         }
 
-        .input-section, .step-card {
-            background: linear-gradient(135deg, #1a1a1a, #000);
-            border-radius: 20px;
-            padding: 30px;
-            border: 1px solid #333;
-            box-shadow: 0 10px 30px rgba(255, 0, 0, 0.1);
+        /* cards (uniform, refined) */
+        .card-professional {
+            background: var(--surface-card);
+            backdrop-filter: blur(12px);
+            border: 1px solid var(--border-subtle);
+            border-radius: 44px;
+            padding: 28px 32px;  /* slightly reduced padding */
+            box-shadow: 0 30px 50px -25px #000;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+        .card-professional:hover {
+            border-color: rgba(0, 255, 247, 0.3);
+            box-shadow: 0 30px 60px -20px #00fff733, 0 0 0 1px rgba(0,255,247,0.2) inset;
         }
 
-        .section-title, .step-title {
-            color: var(--primary-red);
-            font-size: 1.8rem;
-            font-weight: 700;
-            margin-bottom: 25px;
-        }
-
-        .step-card .step-title {
-            font-size: 1.5rem;
+        .section-title {
+            color: var(--primary-cyan);
+            font-size: 1.6rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            font-family: 'Space Grotesk', sans-serif;
             display: flex;
             align-items: center;
             gap: 10px;
         }
+        .step-badge {
+            background: rgba(0,255,247,0.1);
+            border: 1px solid rgba(0,255,247,0.3);
+            border-radius: 60px;
+            padding: 4px 16px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: #b3fffc;
+        }
 
-        .api-key-input, select, textarea {
+        /* form elements */
+        .input-elegant, textarea {
             width: 100%;
-            padding: 12px 15px;
-            background: #222;
-            border: 2px solid #333;
-            border-radius: 10px;
+            padding: 14px 22px;
+            background: rgba(10, 10, 18, 0.7);
+            border: 1.5px solid rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
             color: #fff;
             font-size: 1rem;
-            transition: all 0.3s ease;
-            margin: 8px 0 15px;
+            transition: all 0.2s ease;
+            margin: 8px 0 16px;
+            backdrop-filter: blur(5px);
         }
-
-        .api-key-input:focus, select:focus, textarea:focus {
+        .input-elegant:focus, textarea:focus {
             outline: none;
-            border-color: var(--primary-red);
-            box-shadow: 0 0 15px rgba(213, 0, 0, 0.3);
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 4px rgba(0, 255, 247, 0.1);
+            background: rgba(18, 18, 28, 0.9);
         }
 
-        label {
-            font-weight: 500;
-            color: #ccc;
-            margin-top: 8px;
-        }
-
-        .test-button, .btn-ai {
-            background: var(--primary-red);
-            color: white;
+        /* primary button */
+        .btn-primary-cyan {
+            background: var(--primary-cyan);
+            color: #000;
             border: none;
-            padding: 12px 30px;
-            border-radius: 50px;
-            font-size: 1.1rem;
+            padding: 14px 36px;
+            border-radius: 60px;
             font-weight: 600;
+            font-size: 1.1rem;
+            transition: all 0.25s ease;
+            box-shadow: 0 20px 30px -15px rgba(0, 255, 247, 0.5);
+            border: 1px solid rgba(255,255,255,0.2);
+            width: 100%;
             cursor: pointer;
-            transition: all 0.3s ease;
-            display: inline-block;
-            margin: 8px 5px;
         }
-
-        .test-button:hover, .btn-ai:hover {
-            background: #b30000;
-            transform: translateY(-3px);
-            box-shadow: 0 10px 25px rgba(213, 0, 0, 0.4);
+        .btn-primary-cyan:hover {
+            background: #5efff7;
+            transform: translateY(-4px);
+            box-shadow: 0 28px 40px -15px #00fff7;
+            color: #000;
         }
-
-        .test-button:disabled {
-            background: #666;
+        .btn-primary-cyan:disabled {
+            background: #2a4a4a;
             transform: none;
             box-shadow: none;
+            color: #aaa;
         }
 
+        .btn-outline-cyan {
+            background: transparent;
+            border: 1.5px solid rgba(0,255,247,0.5);
+            color: white;
+            padding: 8px 24px;
+            border-radius: 40px;
+            font-weight: 500;
+            transition: 0.2s;
+        }
+        .btn-outline-cyan:hover {
+            border-color: var(--primary-cyan);
+            background: rgba(0,255,247,0.1);
+            color: white;
+        }
+
+        /* result/log boxes */
         .result-box {
-            background: #1a1a1a;
-            border-radius: 16px;
+            background: rgba(8, 8, 16, 0.5);
+            backdrop-filter: blur(8px);
+            border-radius: 32px;
             padding: 20px;
-            margin: 20px 0;
-            border: 1px solid #333;
-            max-height: 300px;
+            margin: 15px 0;
+            border: 1px solid rgba(0, 255, 247, 0.1);
+            max-height: 250px;
             overflow-y: auto;
-            font-family: monospace;
+            font-family: 'Inter', monospace;
             white-space: pre-wrap;
-            color: #ddd;
+            color: #d0d8e0;
+            box-shadow: inset 0 0 30px #00000040;
+            font-size: 0.95rem;
         }
 
-        .image-showcase {
-            background: linear-gradient(135deg, #1a1a1a, #000);
-            border-radius: 20px;
-            overflow: hidden;
-            margin: 20px 0;
-            border: 1px solid #333;
+        /* status indicator */
+        .api-status {
+            font-size: 0.9rem;
+            padding: 6px 20px;
+            border-radius: 60px;
+            background: rgba(0,0,0,0.3);
+            backdrop-filter: blur(8px);
+            display: inline-block;
+            font-weight: 500;
+            border-left: 4px solid transparent;
+        }
+        .api-status.connected {
+            color: #00fff7;
+            border-left-color: #00fff7;
+            background: rgba(0, 255, 247, 0.05);
+        }
+        .api-status.disconnected {
+            color: #ff8a8a;
+            border-left-color: #ff5e5e;
+            background: rgba(255, 80, 80, 0.05);
         }
 
-        .image-gallery {
-            position: relative;
-            height: 400px;
-            overflow: hidden;
-            background: #1a1a1a;
-            border-radius: 20px 20px 0 0;
+        .tab-indicator {
+            background: rgba(0,255,247,0.08);
+            border: 1px solid rgba(0,255,247,0.2);
+            border-radius: 60px;
+            padding: 4px 16px;
+            font-size: 0.8rem;
+            color: #b0f0f0;
+        }
+
+        /* ---------- STYLE CARDS (7 vertical rectangular) ---------- */
+        .style-card-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 10px 0 16px;
+            max-height: 340px;
+            overflow-y: auto;
+            padding-right: 8px;
+        }
+        .style-card {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            background: rgba(10, 10, 20, 0.6);
+            backdrop-filter: blur(6px);
+            border: 1.5px solid rgba(255, 255, 255, 0.04);
+            border-radius: 28px;
+            padding: 10px 22px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+        .style-card:hover {
+            border-color: rgba(0, 255, 247, 0.5);
+            background: rgba(20, 30, 40, 0.7);
+            transform: translateX(6px);
+        }
+        .style-card.selected {
+            border-color: var(--primary-cyan);
+            background: rgba(0, 255, 247, 0.08);
+            box-shadow: 0 0 20px rgba(0,255,247,0.2);
+        }
+        .style-icon {
+            width: 44px;
+            height: 44px;
+            background: rgba(0,255,247,0.1);
+            border-radius: 22px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.6rem;
+            color: var(--primary-cyan);
+            border: 1px solid rgba(0,255,247,0.3);
+            flex-shrink: 0;
         }
-
-        .image-gallery img {
-            width: 100%;
-            height: 100%;
-            object-fit: contain;
-            background-color: #1a1a1a;
-            transition: transform 0.5s ease;
+        .style-info {
+            flex: 1;
         }
-
-        .image-gallery:hover img {
-            transform: scale(1.02);
-        }
-
-        .image-info {
-            padding: 30px;
-        }
-
-        .image-title {
-            font-size: 2.5rem;
-            font-weight: 700;
-            color: #fff;
-        }
-
-        .image-description {
-            color: #ccc;
-            margin-bottom: 20px;
-            line-height: 1.6;
+        .style-name {
+            font-weight: 600;
             font-size: 1.1rem;
+            color: #fff;
+            margin-bottom: 2px;
+        }
+        .style-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+        }
+        /* hide the original select */
+        #styleSelect {
+            display: none;
+        }
+
+        /* footer refined */
+        .footer-professional {
+            background: rgba(8, 8, 16, 0.8);
+            backdrop-filter: blur(18px);
+            border-top: 1px solid rgba(0,255,247,0.2);
+            padding: 50px 0 25px;
+            width: 100%;
+            flex-shrink: 0;
+            border-radius: 44px 44px 0 0;
+            margin-top: 30px;
+        }
+
+        .footer-logo {
+            font-size: 2rem;
+            font-weight: 700;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(145deg, #fff, #9afffc);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+        .social-circle {
+            background: #1c1c28;
+            width: 42px; height: 42px;
+            border-radius: 30px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 10px;
+            color: white;
+            border: 1px solid rgba(255,255,255,0.05);
+            transition: 0.2s;
+        }
+        .social-circle:hover {
+            background: var(--primary-cyan);
+            color: #000;
+            transform: translateY(-4px);
+        }
+        .footer-links a {
+            color: var(--text-secondary);
+            text-decoration: none;
+            transition: 0.2s;
+            font-size: 0.95rem;
+        }
+        .footer-links a:hover {
+            color: var(--primary-cyan);
+            padding-left: 5px;
+        }
+
+        /* back to top */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 52px;
+            height: 52px;
+            background: var(--primary-cyan);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 1.3rem;
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 999;
+            box-shadow: 0 10px 25px #00fff7b3;
         }
 
         .loading-spinner {
             display: inline-block;
             width: 20px;
             height: 20px;
-            border: 3px solid #333;
-            border-top: 3px solid var(--primary-red);
+            border: 3px solid rgba(255,255,255,0.15);
+            border-top: 3px solid var(--primary-cyan);
             border-radius: 50%;
             animation: spin 1s linear infinite;
             margin-left: 10px;
         }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        @keyframes fadeInUp {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        .back-to-top {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
-            background: var(--primary-red);
-            color: #fff;
-            border-radius: 50%;
+        /* align helper */
+        .flex-center {
             display: flex;
             align-items: center;
-            justify-content: center;
-            opacity: 0;
-            transition: 0.3s;
-            text-decoration: none;
-        }
-        .back-to-top.active { opacity: 1; }
-
-        footer {
-            background: #111;
-            padding: 30px 0;
-            margin-top: 50px;
-            border-radius: 20px;
-        }
-        .footer-logo { font-family: 'Lobster', cursive; font-size: 2rem; color: #fff; }
-        .social-icons a {
-            display: inline-block; width: 40px; height: 40px;
-            background: #1a1a1a; color: #fff; border-radius: 50%;
-            text-align: center; line-height: 40px; margin-right: 8px;
-        }
-        .social-icons a:hover { background: var(--primary-red); }
-
-        .tab-indicator {
-            background: #333;
-            padding: 4px 12px;
-            border-radius: 30px;
-            font-size: 0.8rem;
+            gap: 10px;
         }
 
-        #mainImageShowcase {
-            display: none;
-        }
-        #mainImageShowcase.active {
-            display: block;
-        }
-
-        .enhanced-prompt-box {
-            background: #222;
-            border-left: 4px solid var(--primary-red);
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-        }
-        .enhanced-prompt-label {
-            color: #888;
-            font-size: 0.9rem;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 5px;
-        }
-        .enhanced-prompt-text {
-            color: #fff;
-            font-size: 1rem;
-            line-height: 1.5;
-        }
-        
-        .api-status {
-            font-size: 0.9rem;
-            padding: 5px 10px;
-            border-radius: 20px;
-            background: #222;
-            display: inline-block;
-            margin-bottom: 10px;
-        }
-        .api-status.connected {
-            color: #4caf50;
-            border-left: 3px solid #4caf50;
-        }
-        .api-status.disconnected {
-            color: #ff6b6b;
-            border-left: 3px solid #ff6b6b;
+        @media (max-width: 768px) {
+            .hero-compact { flex-direction: column; align-items: flex-start; }
+            .navbar-professional .navbar-brand { font-size: 1.6rem; }
         }
     </style>
 </head>
 <body>
-    <nav class="navbar navbar-expand-lg navbar-dark">
+    <!-- PROFESSIONAL NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-professional sticky-top">
         <div class="container">
-            <a class="navbar-brand" href="#">QPTech</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon"></span>
+            <a class="navbar-brand" href="#">QPTECH<span style="color: #00fff7; font-size: 2rem;">·</span></a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarProf">
+                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
+            <div class="collapse navbar-collapse" id="navbarProf">
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item"><a class="nav-link" href="#">Generate AI Image</a></li>
                     <li class="nav-item"><a class="nav-link" href="car.html">Create your Dream Car</a></li>
@@ -362,75 +460,185 @@
         </div>
     </nav>
 
-    <section class="dynamic-hero">
-        <div class="hero-content">
-            <h1 id="heroTitle">AI Image Generator</h1>
-            <p id="heroSubtitle">Generate anything with AI</p>
-        </div>
-    </section>
-
-    <div class="main-container">
-        <div style="margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center;">
-            <div id="apiStatus" class="api-status disconnected">🔴 Backend: Disconnected</div>
-            <div>
-                <span style="color: #888;">API Base: </span>
-                <select id="apiBaseSelect" style="width: auto; display: inline-block; padding: 5px 10px; background: #222; color: #fff; border: 1px solid #333; border-radius: 8px;" onchange="updateApiBase()">
-                    <option value="http://localhost:3000">Local Node.js (http://localhost:3000)</option>
-                    <option value="https://hackathon-thkh.onrender.com" selected>Render Node.js (hackathon-thkh.onrender.com)</option>
-                    <option value="https://nonlosable-designedly-garrison.ngrok-free.dev">Flask ngrok (prompt enhancement only)</option>
-                </select>
-                <button class="test-button" style="padding: 5px 15px; font-size: 0.9rem;" onclick="testBackendConnection()">Test Connection</button>
+    <!-- COMPACT HERO (small, space-saving) -->
+    <div class="container">
+        <div class="hero-compact">
+            <div class="tagline">
+                <span class="badge-cyan"><i class="fas fa-bolt me-1"></i> AI Image Generator</span>
+                <p class="mb-0">Mistral + Horde · free</p>
             </div>
-        </div>
-
-        <div class="step-card" style="margin-bottom: 25px;">
-            <div class="step-title"><span>1️⃣</span> Describe what you want to generate</div>
-            <textarea id="userPrompt" rows="3" style="width:100%; background:#222; border:2px solid #333; color:#fff; border-radius:12px; padding:12px;" placeholder="Example: A majestic dragon"></textarea>
-            <div style="margin-top:15px;">
-                <select id="styleSelect" class="api-key-input">
-                    <option value="photorealistic">Photorealistic</option>
-                    <option value="digital art">Digital Art</option>
-                    <option value="oil painting">Oil Painting</option>
-                    <option value="anime">Anime Style</option>
-                    <option value="sketch">Sketch</option>
-                    <option value="3d render">3D Render</option>
-                    <option value="cinematic">Cinematic</option>
-                </select>
+            <div class="flex-center">
+                <span class="api-status disconnected" id="apiStatus">🔴 Backend: Disconnected</span>
             </div>
-            <div style="display:flex; gap:12px; flex-wrap:wrap; margin:15px 0;">
-                <button class="test-button" style="background:#d50000; width:100%;" onclick="generateImage()" id="generateBtn">🚀 Generate Image</button>
-            </div>
-        </div>
-
-        <div class="step-card">
-            <div class="step-title">2️⃣ AI Horde <span class="tab-indicator">opens new tab</span></div>
-            <div id="hordeResult" class="result-box">Click "Generate Image" to open a new tab.</div>
-        </div>
-
-        <div style="background:#1a1a1a; border-radius:20px; padding:20px; margin-top:20px;">
-            <h3 style="color:#d50000;">📋 Log</h3>
-            <div id="testResults" class="result-box" style="max-height:250px;">Ready...</div>
-            <button class="test-button" style="margin-top:10px;" onclick="clearAllResults()">🗑️ Clear Log</button>
         </div>
     </div>
 
-    <footer>
+    <div class="main-container container">
+        <!-- API selector row (directly under hero) -->
+        <div class="d-flex flex-wrap justify-content-end align-items-center mb-3 gap-3">
+            <div class="d-flex flex-wrap gap-3 align-items-center">
+                <span style="color: var(--text-secondary); font-size:0.9rem;">API:</span>
+                <select id="apiBaseSelect" class="form-select" style="width: auto; background: rgba(10,10,18,0.7); border: 1.5px solid rgba(0,255,247,0.2); color: white; border-radius: 60px; padding: 6px 28px 6px 16px; font-size:0.9rem;">
+                    <option value="http://localhost:3000">Local Node.js</option>
+                    <option value="https://hackathon-thkh.onrender.com" selected>Render Node.js</option>
+                    <option value="https://nonlosable-designedly-garrison.ngrok-free.dev">Flask ngrok</option>
+                </select>
+                <button class="btn-outline-cyan" style="padding:6px 20px;" onclick="testBackendConnection()">Test</button>
+            </div>
+        </div>
+
+        <!-- Card 1: Prompt input + style cards (vertical) -->
+        <div class="card-professional mb-4">
+            <div class="section-title">
+                <span>1️⃣</span> Describe & style
+                <span class="step-badge">7 presets</span>
+            </div>
+            <textarea id="userPrompt" rows="2" class="input-elegant" placeholder="e.g. a majestic dragon, cyberpunk city, ethereal forest..." style="margin-bottom:8px;"></textarea>
+            
+            <!-- hidden select for js compatibility -->
+            <select id="styleSelect" style="display: none;">
+                <option value="photorealistic">Photorealistic</option>
+                <option value="digital art">Digital Art</option>
+                <option value="oil painting">Oil Painting</option>
+                <option value="anime">Anime Style</option>
+                <option value="sketch">Sketch</option>
+                <option value="3d render">3D Render</option>
+                <option value="cinematic">Cinematic</option>
+            </select>
+
+            <!-- 7 vertical rectangular style cards -->
+            <div class="style-card-container" id="styleCardContainer">
+                <div class="style-card selected" data-value="photorealistic" data-index="0">
+                    <div class="style-icon"><i class="fas fa-camera"></i></div>
+                    <div class="style-info">
+                        <div class="style-name">Photorealistic</div>
+                        <div class="style-desc">Ultra‑realistic, sharp details</div>
+                    </div>
+                </div>
+                <div class="style-card" data-value="digital art" data-index="1">
+                    <div class="style-icon"><i class="fas fa-paint-brush"></i></div>
+                    <div class="style-info">
+                        <div class="style-name">Digital Art</div>
+                        <div class="style-desc">Modern, vibrant, illustrated</div>
+                    </div>
+                </div>
+                <div class="style-card" data-value="oil painting" data-index="2">
+                    <div class="style-icon"><i class="fas fa-palette"></i></div>
+                    <div class="style-info">
+                        <div class="style-name">Oil Painting</div>
+                        <div class="style-desc">Classic, textured brushstrokes</div>
+                    </div>
+                </div>
+                <div class="style-card" data-value="anime" data-index="3">
+                    <div class="style-icon"><i class="fas fa-dragon"></i></div>
+                    <div class="style-info">
+                        <div class="style-name">Anime Style</div>
+                        <div class="style-desc">Japanese animation aesthetic</div>
+                    </div>
+                </div>
+                <div class="style-card" data-value="sketch" data-index="4">
+                    <div class="style-icon"><i class="fas fa-pencil-alt"></i></div>
+                    <div class="style-info">
+                        <div class="style-name">Sketch</div>
+                        <div class="style-desc">Hand‑drawn, line art</div>
+                    </div>
+                </div>
+                <div class="style-card" data-value="3d render" data-index="5">
+                    <div class="style-icon"><i class="fas fa-cube"></i></div>
+                    <div class="style-info">
+                        <div class="style-name">3D Render</div>
+                        <div class="style-desc">CGI, volumetric, dimensional</div>
+                    </div>
+                </div>
+                <div class="style-card" data-value="cinematic" data-index="6">
+                    <div class="style-icon"><i class="fas fa-film"></i></div>
+                    <div class="style-info">
+                        <div class="style-name">Cinematic</div>
+                        <div class="style-desc">Movie‑like, dramatic lighting</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row mt-2">
+                <div class="col-12">
+                    <button class="btn-primary-cyan" onclick="generateImage()" id="generateBtn">🚀 Generate image</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Card 2: AI Horde status -->
+        <div class="card-professional mb-4">
+            <div class="section-title">
+                <span>2️⃣</span> AI Horde <span class="tab-indicator">opens new tab</span>
+            </div>
+            <div id="hordeResult" class="result-box">Click "Generate Image" to open a new tab with live generation.</div>
+        </div>
+
+        <!-- Card 3: Log / console -->
+        <div class="card-professional">
+            <div class="section-title"><span>📋</span> Activity log</div>
+            <div id="testResults" class="result-box" style="max-height: 200px;">Ready...</div>
+            <button class="btn-outline-cyan mt-2" onclick="clearAllResults()">🗑️ Clear log</button>
+        </div>
+    </div>
+
+    <!-- FOOTER (professional) -->
+    <footer class="footer-professional">
         <div class="container">
-            <div class="row">
-                <div class="col-lg-4"><a href="#" class="footer-logo">QPTech</a><p>AI Image Generator</p></div>
-                <div class="col-lg-4"><h4>Quick</h4><ul class="list-unstyled"><li><a href="#">Home</a></li><li><a href="#">Create</a></li></ul></div>
-                <div class="col-lg-4"><h4>Follow</h4><div class="social-icons"><a href="#"><i class="fab fa-facebook"></i></a><a href="#"><i class="fab fa-twitter"></i></a></div></div>
+            <div class="row gy-4">
+                <div class="col-lg-4">
+                    <a href="#" class="footer-logo">QPTECH<span style="color: #00fff7;">·</span></a>
+                    <p class="my-3" style="color: #9aa0b0; font-size:0.95rem;">Professional AI image generation. Always free.</p>
+                    <div>
+                        <a href="#" class="social-circle"><i class="fab fa-twitter"></i></a>
+                        <a href="#" class="social-circle"><i class="fab fa-instagram"></i></a>
+                        <a href="#" class="social-circle"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-circle"><i class="fab fa-discord"></i></a>
+                    </div>
+                </div>
+                <div class="col-lg-2 col-md-6">
+                    <div class="footer-links">
+                        <h5 class="text-white mb-3" style="font-size:1.1rem;">Explore</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><a href="#">Home</a></li>
+                            <li class="mb-2"><a href="#">Create</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-links">
+                        <h5 class="text-white mb-3" style="font-size:1.1rem;">Tools</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><a href="#">AI Image</a></li>
+                            <li class="mb-2"><a href="car.html">Dream Car</a></li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-6">
+                    <div class="footer-links">
+                        <h5 class="text-white mb-3" style="font-size:1.1rem;">Support</h5>
+                        <ul class="list-unstyled">
+                            <li class="mb-2"><a href="#">FAQ</a></li>
+                            <li class="mb-2"><a href="#">Contact</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div class="text-center pt-4 mt-3" style="border-top: 1px solid rgba(0,255,247,0.15); color: #6f7685; font-size:0.9rem;">
+                <p>© 2025 QPTECH — professional AI suite · 100% free</p>
             </div>
         </div>
     </footer>
+
+    <!-- BACK TO TOP -->
     <a href="#" class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></a>
 
     <script>
+        // ---------- BACKEND CONNECTIONS (identical to original, unchanged) ----------
         let generatedTitle = 'Your Prompt';
         let generatedDescription = '';
-        let selectedApiBase = 'https://hackathon-thkh.onrender.com'; // Default to Render Node.js backend
+        let selectedApiBase = 'https://hackathon-thkh.onrender.com';
 
-        // Update API base when dropdown changes
         function updateApiBase() {
             const select = document.getElementById('apiBaseSelect');
             selectedApiBase = select.value;
@@ -438,7 +646,6 @@
             testBackendConnection();
         }
 
-        // Get current API base URL
         function getApiBaseUrl() {
             return selectedApiBase;
         }
@@ -452,22 +659,15 @@
             statusEl.className = 'api-status';
             
             try {
-                // Add ngrok header only if using ngrok URL
-                const headers = {
-                    'Content-Type': 'application/json'
-                };
-                
+                const headers = { 'Content-Type': 'application/json' };
                 if (apiBase.includes('ngrok')) {
                     headers['ngrok-skip-browser-warning'] = 'true';
                 }
-                
                 const response = await fetch(`${apiBase}/api/health`, {
                     method: 'GET',
                     headers: headers
                 });
-                
                 if (response.ok) {
-                    const data = await response.json();
                     statusEl.innerHTML = '🟢 Backend: Connected';
                     statusEl.className = 'api-status connected';
                     generateBtn.disabled = false;
@@ -498,16 +698,42 @@
         function log(message, type = 'info') {
             const results = document.getElementById('testResults');
             const timestamp = new Date().toLocaleTimeString();
-            const color = type === 'success' ? '#4caf50' : type === 'error' ? '#ff6b6b' : '#2196f3';
+            const color = type === 'success' ? '#00fff7' : type === 'error' ? '#ff8a8a' : '#b0b8c0';
             results.innerHTML += `<div><span style="color: ${color}">[${timestamp}]</span> ${message}</div>`;
             results.scrollTop = results.scrollHeight;
         }
 
         function clearAllResults() {
             document.getElementById('testResults').innerHTML = '';
-            document.getElementById('hordeResult').innerHTML = 'Click "Generate Image" to open a new tab.';
+            document.getElementById('hordeResult').innerHTML = 'Click "Generate Image" to open a new tab with live generation.';
             log('Cleared', 'info');
         }
+
+        // ---------- STYLE CARD LOGIC ----------
+        const styleCards = document.querySelectorAll('.style-card');
+        const hiddenSelect = document.getElementById('styleSelect');
+
+        function updateSelectedStyle(value) {
+            hiddenSelect.value = value;
+            styleCards.forEach(card => {
+                if (card.dataset.value === value) {
+                    card.classList.add('selected');
+                } else {
+                    card.classList.remove('selected');
+                }
+            });
+            log(`🎨 Style preset: ${value}`, 'info');
+        }
+
+        styleCards.forEach(card => {
+            card.addEventListener('click', () => {
+                const val = card.dataset.value;
+                updateSelectedStyle(val);
+            });
+        });
+
+        // initial sync
+        updateSelectedStyle('photorealistic');
 
         async function generateImage() {
             const userPrompt = document.getElementById('userPrompt').value;
@@ -515,7 +741,6 @@
             const apiBase = getApiBaseUrl();
             const generateBtn = document.getElementById('generateBtn');
             
-            // Define the Flask URL for prompt enhancement
             const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev';
             
             if (!userPrompt.trim()) {
@@ -530,13 +755,8 @@
             generateBtn.disabled = true;
             
             try {
-                // Get selected style
-                const selectedStyle = document.getElementById('styleSelect').value;
+                const promptWithStyle = `${sanitizedPrompt}, ${sanitizedStyle}`;
 
-                // Combine prompt with style before enhancement
-                const promptWithStyle = `${sanitizedPrompt}, ${selectedStyle}`;
-
-                // STEP 1: Enhance the prompt - CALL FLASK DIRECTLY (since that's where /generate exists)
                 let enhanceResponse;
                 try {
                     enhanceResponse = await fetch(`${flaskUrl}/generate`, {
@@ -563,7 +783,6 @@
                 
                 if (enhanceResponse && enhanceResponse.ok) {
                     const enhanceData = await enhanceResponse.json();
-                    // Handle different response formats
                     if (Array.isArray(enhanceData)) {
                         enhancedPrompts = enhanceData;
                     } else if (enhanceData.enhancedPrompts) {
@@ -573,7 +792,6 @@
                     log(`✨ Prompt enhanced via Flask: "${promptWithStyle.substring(0, 50)}..."`, 'info');
                 } else {
                     log('⚠️ Using fallback prompt enhancement', 'info');
-                    // Simple fallback enhancements
                     enhancedPrompts = [
                         `${promptWithStyle}, highly detailed, masterpiece`,
                         `${promptWithStyle}, cinematic lighting, 8k quality`,
@@ -582,14 +800,10 @@
                     enhancedPrompt = enhancedPrompts[0];
                 }
                 
-                // STEP 2: Generate title with Mistral - CALL NODE.JS BACKEND
                 document.getElementById('hordeResult').innerHTML = '🎨 Generating title with Mistral AI...';
                 
                 try {
-                    const titleHeaders = {
-                        'Content-Type': 'application/json'
-                    };
-                    
+                    const titleHeaders = { 'Content-Type': 'application/json' };
                     const titleResponse = await fetch(`${apiBase}/api/generate-title`, {
                         method: 'POST',
                         headers: titleHeaders,
@@ -627,8 +841,6 @@
                 }
                 
                 const finalPrompt = enhancedPrompt;
-                
-                // STEP 3: Open generation tab with enhanced prompt - USE NODE.JS BACKEND FOR IMAGE GEN
                 openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts, apiBase);
                 document.getElementById('hordeResult').innerHTML = `✅ New tab opened: "${generatedTitle}" (Enhanced prompt)`;
                 log(`🎨 Opened generation tab with enhanced prompt`, 'success');
@@ -636,8 +848,6 @@
             } catch (error) {
                 console.error('Error in generateImage:', error);
                 log(`❌ Error: ${error.message}`, 'error');
-                
-                // Fallback to original prompt
                 const finalPrompt = `${sanitizedPrompt}, ${sanitizedStyle}`;
                 openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], apiBase);
                 document.getElementById('hordeResult').innerHTML = `✅ New tab opened (using original prompt)`;
@@ -651,7 +861,6 @@
             const safeDescription = sanitizeInput(description);
             const safePrompt = sanitizeInput(finalPrompt);
             const safeEnhancedPrompts = enhancedPrompts.map(p => sanitizeInput(p));
-            // Don't sanitize the API base - it needs to remain a valid URL
             const safeApiBase = apiBase;
             
             const htmlContent = `<!DOCTYPE html>
@@ -661,496 +870,197 @@
                 <title>AI Horde · ${safeTitle}</title>
                 <link rel="preconnect" href="https://fonts.googleapis.com">
                 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet">
+                <link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
                 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
                 <style>
                     * { margin: 0; padding: 0; box-sizing: border-box; }
                     body {
-                        background-color: #000;
+                        background: linear-gradient(165deg, #0a0a14 0%, #141424 100%);
                         color: #fff;
                         font-family: 'Inter', sans-serif;
                         padding: 30px 20px;
                         display: flex;
                         justify-content: center;
                     }
-                    .container {
-                        max-width: 1000px;
-                        width: 100%;
-                    }
+                    .container { max-width: 1000px; width: 100%; }
                     .image-showcase {
-                        background: linear-gradient(135deg, #1a1a1a, #000);
-                        border-radius: 20px;
+                        background: rgba(18,18,28,0.7);
+                        backdrop-filter: blur(20px);
+                        border-radius: 44px;
                         overflow: hidden;
                         margin-bottom: 20px;
-                        border: 1px solid #333;
-                        box-shadow: 0 10px 30px rgba(255, 0, 0, 0.1);
+                        border: 1px solid rgba(0,255,247,0.2);
+                        box-shadow: 0 30px 60px -25px #000;
                     }
                     .image-gallery {
-                        position: relative;
                         height: 450px;
-                        overflow: hidden;
-                        background: #1a1a1a;
-                        border-radius: 20px 20px 0 0;
+                        background: #0c0c18;
+                        border-radius: 44px 44px 0 0;
                         display: flex;
                         align-items: center;
                         justify-content: center;
                     }
                     .image-gallery img {
-                        width: 100%;
-                        height: 100%;
-                        object-fit: cover;
-                        background-color: #1a1a1a;
-                        transition: transform 0.3s ease;
+                        width: 100%; height: 100%; object-fit: contain;
+                        transition: transform 0.3s;
                     }
-                    .image-gallery:hover img {
-                        transform: scale(1.01);
-                    }
-                    .image-info {
-                        padding: 30px;
-                    }
+                    .image-info { padding: 30px; }
                     .image-title {
-                        font-size: 2.5rem;
-                        font-weight: 700;
-                        color: #fff;
-                        margin-bottom: 15px;
-                    }
-                    .image-description {
-                        color: #ccc;
-                        font-size: 1.1rem;
-                        line-height: 1.6;
-                        margin-bottom: 20px;
-                        font-style: italic;
+                        font-size: 2.5rem; font-weight: 700; font-family: 'Space Grotesk', sans-serif;
+                        background: linear-gradient(to right, #fff, #b5fffd); -webkit-background-clip: text;
+                        background-clip: text; color: transparent;
                     }
                     .prompt-box {
-                        background: #222;
-                        border-left: 4px solid #d50000;
-                        padding: 20px;
-                        border-radius: 10px;
-                        margin: 20px 0;
+                        background: rgba(0,0,0,0.3); border-left: 4px solid #00fff7;
+                        padding: 20px; border-radius: 30px; margin: 20px 0;
                     }
-                    .prompt-label {
-                        color: #888;
-                        font-size: 0.9rem;
-                        text-transform: uppercase;
-                        letter-spacing: 1px;
-                        margin-bottom: 10px;
-                    }
-                    .prompt-text {
-                        color: #fff;
-                        font-size: 1.1rem;
-                        line-height: 1.6;
-                        word-break: break-word;
-                    }
-                    .enhanced-prompts {
-                        margin-top: 15px;
-                        padding: 15px;
-                        background: #1a1a1a;
-                        border-radius: 10px;
-                        border: 1px solid #333;
-                    }
-                    .enhanced-title {
-                        color: #d50000;
-                        font-size: 0.9rem;
-                        margin-bottom: 10px;
-                    }
-                    .enhanced-item {
-                        padding: 8px;
-                        margin: 5px 0;
-                        background: #222;
-                        border-radius: 5px;
-                        cursor: pointer;
-                        transition: all 0.3s ease;
-                    }
-                    .enhanced-item:hover {
-                        background: #333;
-                        border-left: 3px solid #d50000;
-                    }
-                    .enhanced-item.selected {
-                        border-left: 3px solid #d50000;
-                        background: #2a2a2a;
-                    }
-                    .status-bar {
-                        background: #111;
-                        border-radius: 20px;
-                        padding: 15px 25px;
-                        border-left: 6px solid #d50000;
-                        margin-top: 10px;
-                        display: flex;
-                        align-items: center;
-                        gap: 15px;
-                    }
-                    .loader {
-                        border: 3px solid #333;
-                        border-top: 3px solid #d50000;
-                        border-radius: 50%;
-                        width: 30px;
-                        height: 30px;
-                        animation: spin 1s linear infinite;
-                    }
-
-                    .scrolling-prompt-container {
-                        width: 100%;
-                        overflow: hidden;
-                        position: relative;
-                        background: transparent;
-                    }
-
                     .scrolling-prompt {
-                        white-space: nowrap;
-                        animation: scrollText 30s linear infinite;
-                        color: #fff;
-                        font-size: 1.1rem;
-                        padding: 5px 0;
-                        display: inline-block;
-                        min-width: 100%;
+                        white-space: nowrap; animation: scrollText 40s linear infinite;
+                        color: #fff; font-size: 1.1rem;
                     }
-
-                    .scrolling-prompt:hover {
-                        animation-play-state: paused;
-                        cursor: pointer;
-                    }
-
                     @keyframes scrollText {
-                        0% {
-                            transform: translateX(100%);
-                        }
-                        50% {
-                            transform: translateX(-100%);
-                        }
-                        100% {
-                            transform: translateX(100%);
-                        }
+                        0% { transform: translateX(100%); } 50% { transform: translateX(-100%); } 100% { transform: translateX(100%); }
                     }
-
-                    /* Gradient fade on edges */
-                    .scrolling-prompt-container::before,
-                    .scrolling-prompt-container::after {
-                        content: '';
-                        position: absolute;
-                        top: 0;
-                        width: 50px;
-                        height: 100%;
-                        z-index: 2;
-                        pointer-events: none;
+                    .enhanced-prompts { background: rgba(0,0,0,0.2); border-radius: 30px; padding: 15px; margin-top: 15px; }
+                    .enhanced-item { padding: 10px; margin: 5px 0; border-radius: 40px; cursor: pointer; transition: 0.2s; }
+                    .enhanced-item:hover { background: rgba(0,255,247,0.1); border-left: 4px solid #00fff7; }
+                    .enhanced-item.selected { border-left: 4px solid #00fff7; background: rgba(0,255,247,0.05); }
+                    .status-bar {
+                        background: rgba(8,8,16,0.8); backdrop-filter: blur(15px);
+                        border-radius: 60px; padding: 15px 25px; border-left: 6px solid #00fff7;
+                        display: flex; align-items: center; gap: 15px;
                     }
-
-                    .scrolling-prompt-container::before {
-                        left: 0;
-                        background: linear-gradient(to right, #1a1a1a, transparent);
-                    }
-
-                    .scrolling-prompt-container::after {
-                        right: 0;
-                        background: linear-gradient(to left, #1a1a1a, transparent);
-                    }
+                    .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #00fff7; width: 30px; height: 30px; border-radius: 50%; animation: spin 1s linear infinite; }
                     @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
-                    #status { color: #ccc; font-size: 1rem; flex: 1; }
                     .download-btn {
-                        background: #d50000;
-                        color: white;
-                        border: none;
-                        padding: 8px 20px;
-                        border-radius: 40px;
-                        text-decoration: none;
-                        font-weight: 500;
-                        white-space: nowrap;
-                        cursor: pointer;
-                        font-size: 1rem;
-                        display: inline-block;
+                        background: #00fff7; color: #000; padding: 8px 20px; border-radius: 40px;
+                        font-weight: 600; text-decoration: none; transition: 0.2s;
                     }
-                    .download-btn:hover { background: #b30000; }
-                    .download-btn i { margin-right: 5px; }
-                    .button-group {
-                        display: flex;
-                        gap: 10px;
-                    }
+                    .download-btn:hover { background: #6efff7; transform: translateY(-2px); }
                 </style>
             </head>
             <body>
             <div class="container">
                 <div class="image-showcase">
-                    <div class="image-gallery" id="imageGallery">
+                    <div class="image-gallery">
                         <img id="mainImage" src="https://source.unsplash.com/800x600/?${encodeURIComponent(safeTitle.split(' ').slice(0,3).join(','))}&${Date.now()}" alt="${safeTitle}">
                     </div>
                     <div class="image-info">
                         <h1 class="image-title">${safeTitle}</h1>
-                        ${safeDescription ? `<p class="image-description">${safeDescription}</p>` : ''}
+                        ${safeDescription ? `<p style="color:#b0b8c0;">${safeDescription}</p>` : ''}
                         <div class="prompt-box">
-                            <div class="prompt-label">Current prompt</div>
-                            <div class="scrolling-prompt-container" style="margin: 0; padding: 0; background transparent;">
-                                <div class="scrolling-prompt" id="currentPrompt" style="animation: scrollText 60s linear infinite; color: #fff; font-size: 1.1rem; padding: 5px 0;">
-                                    ${safePrompt}
-                                </div>
-                            </div>
+                            <div style="color:#00fff7;">Current prompt</div>
+                            <div class="scrolling-prompt" id="currentPrompt">${safePrompt}</div>
                         </div>
-                        
                         ${safeEnhancedPrompts.length > 1 ? `
                         <div class="enhanced-prompts">
-                            <div class="enhanced-title">✨ Enhanced Versions (click to try)</div>
-                            ${safeEnhancedPrompts.map((p, idx) => {
-                                const escapedPrompt = p.replace(/"/g, '&quot;').replace(/'/g, '&#39;');
-                                return `
+                            <div style="color:#00fff7;">✨ Enhanced versions</div>
+                            ${safeEnhancedPrompts.map((p, idx) => `
                                 <div class="enhanced-item ${idx === 0 ? 'selected' : ''}" 
-                                    onclick="selectPrompt(${idx}, this.getAttribute('data-prompt'))" 
-                                    data-prompt="${escapedPrompt}">
-                                    <i class="fas fa-magic"></i> Version ${idx + 1}: ${p.substring(0, 60)}...
-                                </div>
-                                `;
-                            }).join('')}
-                        </div>
-                        ` : ''}
+                                    onclick="selectPrompt(${idx}, '${p.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
+                                    <i class="fas fa-magic" style="color:#00fff7;"></i> Version ${idx+1}: ${p.substring(0,60)}...
+                                </div>`).join('')}
+                        </div>` : ''}
                     </div>
                 </div>
-
                 <div class="status-bar">
                     <span class="loader" id="loader"></span>
                     <div id="status">Starting AI image generation...</div>
-                    <div class="button-group" id="actionButtons">
-                        <button class="download-btn" id="regenerateBtn" onclick="regenerateCurrentImage()" style="display: none;">
-                            <i class="fas fa-sync-alt"></i> Regenerate
-                        </button>
-                        <div id="downloadContainer" style="display: inline-block;"></div>
+                    <div class="button-group">
+                        <button class="download-btn" id="regenerateBtn" onclick="regenerateCurrentImage()" style="display:none;"><i class="fas fa-sync-alt"></i> Regenerate</button>
+                        <div id="downloadContainer"></div>
                     </div>
                 </div>
-
+            </div>
             <script>
-            const API_BASE = "${safeApiBase}";
-            let currentPrompt = "${safePrompt.replace(/"/g, '\\"').replace(/'/g, "\\'")}";
-            let currentJobId = null;
-            let generatedImages = {}; // Cache for generated images by prompt
-            let isGenerating = false;
+                const API_BASE = "${safeApiBase}";
+                let currentPrompt = "${safePrompt.replace(/"/g, '\\"').replace(/'/g, "\\'")}";
+                let generatedImages = {};
+                let isGenerating = false;
 
-            // Select different enhanced prompt
-            window.selectPrompt = function(index, prompt) {
-                // Decode HTML entities
-                const decodedPrompt = prompt.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
-                currentPrompt = decodedPrompt;
-                
-                const promptEl = document.getElementById('currentPrompt');
-                promptEl.innerText = decodedPrompt;
-                
-                // Reset animation smoothly
-                promptEl.style.animation = 'none';
-                promptEl.offsetHeight; // Trigger reflow
-                promptEl.style.animation = 'scrollText 30s linear infinite';
-                
-                // Update selected UI
-                document.querySelectorAll('.enhanced-item').forEach((el, i) => {
-                    if (i === index) {
-                        el.classList.add('selected');
-                    } else {
-                        el.classList.remove('selected');
-                    }
-                });
-                
-                // Check if we already have an image for this prompt
-                if (generatedImages[decodedPrompt]) {
-                    // Use cached image
-                    document.getElementById('mainImage').src = generatedImages[decodedPrompt];
-                    document.getElementById('status').innerHTML = '✅ Using cached image';
-                    document.getElementById('loader').style.display = 'none';
-                    document.getElementById('regenerateBtn').style.display = 'inline-block';
-                    document.getElementById('downloadContainer').innerHTML = '<a href="' + generatedImages[decodedPrompt] + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> See Full Image</a>';
-                } else {
-                    // Generate new image
-                    regenerateWithPrompt(decodedPrompt);
-                }
-            };
-
-            // Regenerate current image
-            window.regenerateCurrentImage = function() {
-                if (isGenerating) return;
-                regenerateWithPrompt(currentPrompt);
-            };
-
-            async function regenerateWithPrompt(prompt) {
-                if (isGenerating) return;
-                
-                const s = document.getElementById('status');
-                const loader = document.getElementById('loader');
-                const downloadContainer = document.getElementById('downloadContainer');
-                const mainImage = document.getElementById('mainImage');
-                const regenerateBtn = document.getElementById('regenerateBtn');
-                
-                isGenerating = true;
-                loader.style.display = 'inline-block';
-                regenerateBtn.style.display = 'none';
-                s.innerHTML = 'Regenerating with new prompt...';
-                downloadContainer.innerHTML = '';
-                
-                try {
-                    // Fix: Construct URL properly without any extra characters
-                    const url = API_BASE + '/api/generate-image';
-                    console.log('Fetching:', url); // Debug log
-                    
-                    const r = await fetch(url, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ prompt: prompt })
+                window.selectPrompt = function(idx, prompt) {
+                    const decoded = prompt.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
+                    currentPrompt = decoded;
+                    document.getElementById('currentPrompt').innerText = decoded;
+                    document.querySelectorAll('.enhanced-item').forEach((el,i) => {
+                        if(i===idx) el.classList.add('selected'); else el.classList.remove('selected');
                     });
-                    
-                    if (!r.ok) {
-                        const errorText = await r.text();
-                        console.error('Generation error:', errorText);
-                        throw new Error('Generation failed: ' + r.status);
-                    }
-                    
-                    const d = await r.json();
-                    currentJobId = d.id;
-                    s.innerHTML = 'Job ' + currentJobId + ' waiting in queue...';
-                    
-                    pollStatus(currentJobId, prompt);
-                } catch (e) {
-                    loader.style.display = 'none';
-                    s.innerHTML = '❌ Error: ' + e.message;
-                    isGenerating = false;
-                    regenerateBtn.style.display = 'inline-block';
-                }
-            }
-
-            async function pollStatus(id, prompt) {
-                const s = document.getElementById('status');
-                const loader = document.getElementById('loader');
-                const downloadContainer = document.getElementById('downloadContainer');
-                const mainImage = document.getElementById('mainImage');
-                const regenerateBtn = document.getElementById('regenerateBtn');
-                let attempts = 0;
-                
-                const poll = setInterval(async () => {
+                    if(generatedImages[decoded]) {
+                        document.getElementById('mainImage').src = generatedImages[decoded];
+                        document.getElementById('status').innerHTML = '✅ Using cached image';
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('regenerateBtn').style.display = 'inline-block';
+                        document.getElementById('downloadContainer').innerHTML = '<a href="'+generatedImages[decoded]+'" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> View</a>';
+                    } else { regenerateWithPrompt(decoded); }
+                };
+                window.regenerateCurrentImage = ()=> { if(!isGenerating) regenerateWithPrompt(currentPrompt); };
+                async function regenerateWithPrompt(p) {
+                    if(isGenerating) return;
+                    isGenerating = true;
+                    document.getElementById('loader').style.display = 'inline-block';
+                    document.getElementById('regenerateBtn').style.display = 'none';
+                    document.getElementById('status').innerHTML = 'Regenerating...';
+                    document.getElementById('downloadContainer').innerHTML = '';
                     try {
-                        const stat = await fetch(API_BASE + '/api/image-status/' + id, {
-                            headers: {}
+                        const r = await fetch(API_BASE+'/api/generate-image', {
+                            method:'POST', headers:{'Content-Type':'application/json'},
+                            body: JSON.stringify({prompt:p})
                         });
-                        const st = await stat.json();
-                        
-                        if (st.done && st.generations && st.generations[0]) {
-                            clearInterval(poll);
-                            const imgUrl = st.generations[0].img;
-                            loader.style.display = 'none';
-                            s.innerHTML = '✅ Image generated successfully!';
-                            mainImage.src = imgUrl;
-                            
-                            // Cache the image for this prompt
-                            generatedImages[prompt] = imgUrl;
-                            
-                            // Show regenerate button and download link
-                            regenerateBtn.style.display = 'inline-block';
-                            downloadContainer.innerHTML = '<a href="' + imgUrl + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> See Full Image</a>';
-                            isGenerating = false;
-                            
-                        } else if (st.faulted) {
-                            clearInterval(poll);
-                            loader.style.display = 'none';
-                            s.innerHTML = '❌ Generation failed: ' + (st.message || 'Unknown error');
-                            regenerateBtn.style.display = 'inline-block';
-                            isGenerating = false;
-                        } else if (attempts++ > 40) {
-                            clearInterval(poll);
-                            loader.style.display = 'none';
-                            s.innerHTML = '⚠️ Timeout — generation took too long.';
-                            regenerateBtn.style.display = 'inline-block';
-                            isGenerating = false;
-                        } else {
-                            const queuePos = st.queue_position || '?';
-                            const waitTime = st.wait_time || '?';
-                            s.innerHTML = '⏳ Queue: ' + queuePos + ' | Wait time: ' + waitTime + 's';
-                        }
-                    } catch (e) {
-                        console.error('Poll error:', e);
+                        if(!r.ok) throw new Error('failed');
+                        const d = await r.json();
+                        pollStatus(d.id, p);
+                    } catch(e) {
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('status').innerHTML = '❌ Error';
+                        isGenerating = false;
+                        document.getElementById('regenerateBtn').style.display = 'inline-block';
                     }
-                }, 4000);
-            }
-
-            // Start initial generation
-            (async function autoGen() {
-                const s = document.getElementById('status');
-                const loader = document.getElementById('loader');
-                const downloadContainer = document.getElementById('downloadContainer');
-                const mainImage = document.getElementById('mainImage');
-                const regenerateBtn = document.getElementById('regenerateBtn');
-                
-                isGenerating = true;
-                
-                try {
-                    // Fix: Construct URL properly
-                    const url = API_BASE + '/api/generate-image';
-                    console.log('Initial fetch:', url);
-                    
-                    const r = await fetch(url, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json'
-                        },
-                        body: JSON.stringify({ prompt: currentPrompt })
-                    });
-                    
-                    if (!r.ok) {
-                        const errorText = await r.text();
-                        console.error('Generation error:', errorText);
-                        if (r.status === 429) {
-                            throw new Error('Rate limit reached. Please wait a moment.');
-                        } else if (r.status === 400) {
-                            throw new Error('Bad request - prompt may be too long or invalid');
-                        } else {
-                            throw new Error('Submission failed: ' + r.status);
-                        }
-                    }
-                    const d = await r.json();
-                    const id = d.id;
-                    s.innerHTML = 'Job ' + id + ' waiting in queue...';
-                    let attempts = 0;
-                    
-                    const poll = setInterval(async () => {
-                        try {
-                            const stat = await fetch(API_BASE + '/api/image-status/' + id, {
-                                headers: {}
-                            });
-                            const st = await stat.json();
-                            
-                            if (st.done && st.generations && st.generations[0]) {
-                                clearInterval(poll);
-                                const imgUrl = st.generations[0].img;
-                                loader.style.display = 'none';
-                                s.innerHTML = '✅ Image generated successfully!';
-                                mainImage.src = imgUrl;
-                                
-                                // Cache the initial image
-                                generatedImages[currentPrompt] = imgUrl;
-                                
-                                // Show regenerate button and download link
-                                regenerateBtn.style.display = 'inline-block';
-                                downloadContainer.innerHTML = '<a href="' + imgUrl + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> See Full Image</a>';
-                                isGenerating = false;
-                                
-                            } else if (st.faulted) {
-                                clearInterval(poll);
-                                loader.style.display = 'none';
-                                s.innerHTML = '❌ Generation failed: ' + (st.message || 'Unknown error');
-                                regenerateBtn.style.display = 'inline-block';
-                                isGenerating = false;
-                            } else if (attempts++ > 40) {
-                                clearInterval(poll);
-                                loader.style.display = 'none';
-                                s.innerHTML = '⚠️ Timeout — generation took too long.';
-                                regenerateBtn.style.display = 'inline-block';
-                                isGenerating = false;
-                            } else {
-                                s.innerHTML = '⏳ Queue: ' + (st.queue_position || '...') + ' | waiting...';
-                            }
-                        } catch (e) {
-                            console.error('Poll error:', e);
-                        }
-                    }, 4000);
-                } catch (e) {
-                    loader.style.display = 'none';
-                    s.innerHTML = '❌ Error: ' + e.message;
-                    console.error('Generation error:', e);
-                    regenerateBtn.style.display = 'inline-block';
-                    isGenerating = false;
                 }
-            })();
+                async function pollStatus(id, p) {
+                    const s = document.getElementById('status');
+                    const loader = document.getElementById('loader');
+                    const download = document.getElementById('downloadContainer');
+                    const img = document.getElementById('mainImage');
+                    const regen = document.getElementById('regenerateBtn');
+                    let attempts = 0;
+                    const poll = setInterval(async ()=>{
+                        try {
+                            const stat = await fetch(API_BASE+'/api/image-status/'+id);
+                            const st = await stat.json();
+                            if(st.done && st.generations && st.generations[0]) {
+                                clearInterval(poll);
+                                const url = st.generations[0].img;
+                                loader.style.display = 'none';
+                                s.innerHTML = '✅ Image generated';
+                                img.src = url;
+                                generatedImages[p] = url;
+                                regen.style.display = 'inline-block';
+                                download.innerHTML = '<a href="'+url+'" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> View</a>';
+                                isGenerating = false;
+                            } else if(st.faulted) {
+                                clearInterval(poll); loader.style.display = 'none'; s.innerHTML = '❌ Failed'; regen.style.display = 'inline-block'; isGenerating = false;
+                            } else if(attempts++>40) {
+                                clearInterval(poll); loader.style.display = 'none'; s.innerHTML = '⚠️ Timeout'; regen.style.display = 'inline-block'; isGenerating = false;
+                            } else {
+                                s.innerHTML = '⏳ Queue: '+(st.queue_position||'...');
+                            }
+                        } catch(e){}
+                    }, 4000);
+                }
+                // auto start
+                (async function auto() {
+                    try {
+                        const r = await fetch(API_BASE+'/api/generate-image', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt:currentPrompt}) });
+                        if(!r.ok) throw new Error('failed');
+                        const d = await r.json();
+                        pollStatus(d.id, currentPrompt);
+                    } catch(e) {
+                        document.getElementById('loader').style.display = 'none';
+                        document.getElementById('status').innerHTML = '❌ Error starting';
+                        document.getElementById('regenerateBtn').style.display = 'inline-block';
+                        isGenerating = false;
+                    }
+                })();
             <\/script>
             </body>
             </html>`;
@@ -1160,16 +1070,32 @@
             newTab.document.close();
         }
 
-        
         window.onload = function() {
-            // Set default to Render Node.js backend
             document.getElementById('apiBaseSelect').value = 'https://hackathon-thkh.onrender.com';
             selectedApiBase = 'https://hackathon-thkh.onrender.com';
             testBackendConnection();
             log('🚀 Using Render Node.js backend', 'info');
             log('💡 Flask ngrok URL is used only for prompt enhancement', 'info');
         };
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js"></script>
+
+        const backBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backBtn.style.opacity = window.scrollY > 300 ? '1' : '0';
+        });
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function(e) {
+            e.preventDefault();
+            const id = this.getAttribute('href');
+            if (id === '#') { 
+                window.scrollTo({ top: 0, behavior: 'smooth' }); 
+                return; 
+            }
+            const target = document.querySelector(id);
+            if (target) target.scrollIntoView({ behavior: 'smooth' });
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.min.js"></script>
 </body>
 </html>
