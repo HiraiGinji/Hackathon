@@ -172,18 +172,25 @@
         .model-viewer {
             width: 100%;
             height: 500px;
+            min-height: 500px;
             background: #1a1a1a;
             border-radius: 20px;
             overflow: hidden;
             position: relative;
             border: 1px solid #333;
             margin: 20px 0;
+            display: block !important;
+            visibility: visible !important;
         }
 
         .model-viewer canvas {
-            width: 100%;
-            height: 100%;
-            display: block;
+            width: 100% !important;
+            height: 100% !important;
+            display: block !important;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
         }
 
         .model-controls {
@@ -770,6 +777,14 @@
             }
         }
         
+        // FIX: Force render function
+        function forceRender() {
+            if (renderer && scene && camera) {
+                renderer.render(scene, camera);
+                console.log('Forced render');
+            }
+        }
+        
         // Initialize Three.js scene
         function initThree() {
             const container = document.getElementById('modelViewer');
@@ -820,6 +835,9 @@
             controls.enableZoom = true;
             controls.target.set(0, 1, 0);
             
+            // Force initial render
+            forceRender();
+            
             // Start animation loop
             animate();
         }
@@ -860,6 +878,9 @@
             if (posZVal) posZVal.textContent = posZ.toFixed(1);
             
             model.position.set(posX, posY, posZ);
+            
+            // Force render after position update
+            forceRender();
         };
 
         // NEW: Update model scale
@@ -875,6 +896,9 @@
             if (scaleVal) scaleVal.textContent = scale.toFixed(1);
             
             model.scale.setScalar(scale);
+            
+            // Force render after scale update
+            forceRender();
         };
 
         // NEW: Update model rotation
@@ -891,6 +915,9 @@
             
             // Convert to radians
             model.rotation.y = rotY * Math.PI / 180;
+            
+            // Force render after rotation update
+            forceRender();
         };
 
         // NEW: Reset position to ground level
@@ -924,6 +951,9 @@
             model.position.set(0, heightOffset, 0);
             
             log('📐 Model position reset to ground level', 'success');
+            
+            // Force render after reset
+            forceRender();
         };
 
         // NEW: Quick lift to raise model
@@ -944,6 +974,9 @@
             model.position.y = newY;
             
             log('⬆️ Model lifted', 'info');
+            
+            // Force render after lift
+            forceRender();
         };
 
         // NEW: Center model horizontally
@@ -966,6 +999,9 @@
             model.position.z = 0;
             
             log('🎯 Model centered', 'info');
+            
+            // Force render after center
+            forceRender();
         };
 
         // NEW: Toggle auto-rotate
@@ -998,84 +1034,90 @@
                 initThree();
             }
             
-            // Remove existing model
-            if (model) {
-                scene.remove(model);
-                model = null;
-            }
-            
-            // Use proxy URL to avoid CORS
-            const proxyUrl = `${API_BASE}/api/tripo/proxy-model?url=${encodeURIComponent(url)}`;
-            
-            const loader = new GLTFLoader();
-            loader.load(
-                proxyUrl,
-                (gltf) => {
-                    model = gltf.scene;
-                    
-                    // Calculate bounding box
-                    const box = new THREE.Box3().setFromObject(model);
-                    const size = box.getSize(new THREE.Vector3());
-                    
-                    // Calculate scale to fit in viewer
-                    const maxDim = Math.max(size.x, size.y, size.z);
-                    const scale = 2.5 / maxDim;
-                    
-                    // Calculate height offset to place model on ground
-                    // First apply scale to get correct dimensions
-                    model.scale.setScalar(scale);
-                    
-                    // Recalculate box after scaling
-                    const scaledBox = new THREE.Box3().setFromObject(model);
-                    const heightOffset = -scaledBox.min.y;
-                    
-                    // Apply position
-                    model.position.set(0, heightOffset, 0);
-                    
-                    scene.add(model);
-                    
-                    // FIX: Check if elements exist before setting values
-                    const posXEl = document.getElementById('posX');
-                    const posYEl = document.getElementById('posY');
-                    const posZEl = document.getElementById('posZ');
-                    const scaleEl = document.getElementById('scale');
-                    const rotYEl = document.getElementById('rotY');
-                    
-                    const posXVal = document.getElementById('posXValue');
-                    const posYVal = document.getElementById('posYValue');
-                    const posZVal = document.getElementById('posZValue');
-                    const scaleVal = document.getElementById('scaleValue');
-                    const rotYVal = document.getElementById('rotYValue');
-                    
-                    if (posXEl) posXEl.value = 0;
-                    if (posYEl) posYEl.value = heightOffset.toFixed(1);
-                    if (posZEl) posZEl.value = 0;
-                    if (scaleEl) scaleEl.value = scale.toFixed(1);
-                    if (rotYEl) rotYEl.value = 0;
-                    
-                    if (posXVal) posXVal.textContent = '0.0';
-                    if (posYVal) posYVal.textContent = heightOffset.toFixed(1);
-                    if (posZVal) posZVal.textContent = '0.0';
-                    if (scaleVal) scaleVal.textContent = scale.toFixed(1);
-                    if (rotYVal) rotYVal.textContent = '0°';
-                    
-                    // FIX: Ensure panel is visible
-                    setTimeout(ensurePanelVisible, 100);
-                    
-                    log('✅ Model loaded successfully and placed on ground', 'success');
-                    log(`📏 Model height: ${(size.y * scale).toFixed(2)} units`, 'info');
-                },
-                (xhr) => {
-                    const percent = Math.round((xhr.loaded / xhr.total) * 100);
-                    if ([25, 50, 75, 100].includes(percent)) {
-                        log(`Loading model: ${percent}%`, 'info');
-                    }
-                },
-                (error) => {
-                    log(`❌ Error loading model: ${error}`, 'error');
-                    console.error('Model load error:', error);
+            // Small delay to ensure renderer is ready
+            setTimeout(() => {
+                // Remove existing model
+                if (model) {
+                    scene.remove(model);
+                    model = null;
                 }
-            );
+                
+                // Use proxy URL to avoid CORS
+                const proxyUrl = `${API_BASE}/api/tripo/proxy-model?url=${encodeURIComponent(url)}`;
+                
+                const loader = new GLTFLoader();
+                loader.load(
+                    proxyUrl,
+                    (gltf) => {
+                        model = gltf.scene;
+                        
+                        // Calculate bounding box
+                        const box = new THREE.Box3().setFromObject(model);
+                        const size = box.getSize(new THREE.Vector3());
+                        
+                        // Calculate scale to fit in viewer
+                        const maxDim = Math.max(size.x, size.y, size.z);
+                        const scale = 2.5 / maxDim;
+                        
+                        // Calculate height offset to place model on ground
+                        // First apply scale to get correct dimensions
+                        model.scale.setScalar(scale);
+                        
+                        // Recalculate box after scaling
+                        const scaledBox = new THREE.Box3().setFromObject(model);
+                        const heightOffset = -scaledBox.min.y;
+                        
+                        // Apply position
+                        model.position.set(0, heightOffset, 0);
+                        
+                        scene.add(model);
+                        
+                        // FIX: Check if elements exist before setting values
+                        const posXEl = document.getElementById('posX');
+                        const posYEl = document.getElementById('posY');
+                        const posZEl = document.getElementById('posZ');
+                        const scaleEl = document.getElementById('scale');
+                        const rotYEl = document.getElementById('rotY');
+                        
+                        const posXVal = document.getElementById('posXValue');
+                        const posYVal = document.getElementById('posYValue');
+                        const posZVal = document.getElementById('posZValue');
+                        const scaleVal = document.getElementById('scaleValue');
+                        const rotYVal = document.getElementById('rotYValue');
+                        
+                        if (posXEl) posXEl.value = 0;
+                        if (posYEl) posYEl.value = heightOffset.toFixed(1);
+                        if (posZEl) posZEl.value = 0;
+                        if (scaleEl) scaleEl.value = scale.toFixed(1);
+                        if (rotYEl) rotYEl.value = 0;
+                        
+                        if (posXVal) posXVal.textContent = '0.0';
+                        if (posYVal) posYVal.textContent = heightOffset.toFixed(1);
+                        if (posZVal) posZVal.textContent = '0.0';
+                        if (scaleVal) scaleVal.textContent = scale.toFixed(1);
+                        if (rotYVal) rotYVal.textContent = '0°';
+                        
+                        // FIX: Force render after model is loaded
+                        forceRender();
+                        
+                        // FIX: Ensure panel is visible
+                        setTimeout(ensurePanelVisible, 100);
+                        
+                        log('✅ Model loaded successfully and placed on ground', 'success');
+                        log(`📏 Model height: ${(size.y * scale).toFixed(2)} units`, 'info');
+                    },
+                    (xhr) => {
+                        const percent = Math.round((xhr.loaded / xhr.total) * 100);
+                        if ([25, 50, 75, 100].includes(percent)) {
+                            log(`Loading model: ${percent}%`, 'info');
+                        }
+                    },
+                    (error) => {
+                        log(`❌ Error loading model: ${error}`, 'error');
+                        console.error('Model load error:', error);
+                    }
+                );
+            }, 100);
         }
         
         // Handle window resize
@@ -1085,6 +1127,7 @@
                 camera.aspect = container.clientWidth / container.clientHeight;
                 camera.updateProjectionMatrix();
                 renderer.setSize(container.clientWidth, container.clientHeight);
+                forceRender();
             }
         });
         
@@ -1094,6 +1137,7 @@
                 controls.target.set(0, 1, 0);
                 camera.position.set(3, 2, 5);
                 controls.update();
+                forceRender();
             }
         };
         
@@ -1109,6 +1153,7 @@
                         }
                     }
                 });
+                forceRender();
             }
         };
         
@@ -1290,18 +1335,25 @@
                             document.getElementById('modelUrl').innerHTML = modelUrl;
                             document.getElementById('modelTaskId').innerHTML = taskId;
                             
-                            // Initialize Three.js if needed
-                            if (!renderer) {
-                                initThree();
-                            }
-                            
-                            // Load and display model
-                            loadModel(modelUrl);
-                            
+                            // Show viewer section first
                             document.getElementById('viewerSection').style.display = 'block';
                             
-                            // FIX: Ensure panel is visible after showing viewer
-                            setTimeout(ensurePanelVisible, 500);
+                            // Small delay to ensure DOM is updated
+                            setTimeout(() => {
+                                // Initialize Three.js if needed
+                                if (!renderer) {
+                                    initThree();
+                                } else {
+                                    // Ensure renderer size is correct
+                                    const container = document.getElementById('modelViewer');
+                                    if (container && renderer) {
+                                        renderer.setSize(container.clientWidth, container.clientHeight);
+                                    }
+                                }
+                                
+                                // Load and display model
+                                loadModel(modelUrl);
+                            }, 100);
                             
                             log(`✅ Model generated successfully!`, 'success');
                             
