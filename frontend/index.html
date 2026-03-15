@@ -92,7 +92,13 @@
             box-shadow: 0 15px 35px -15px rgba(0,0,0,0.8);
             padding: 16px 0;
             transition: background-color 0.3s ease;
+            position: relative; /* or sticky/fixed if desired */
+            z-index: 2000;      /* must be higher than hero section */
         }
+        /* Optional: also ensure dropdown itself has z-index */
+.navbar-modern .dropdown-menu {
+    z-index: 2100; /* above navbar and hero */
+}
 
         .navbar-modern .navbar-brand {
             font-family: 'Space Grotesk', sans-serif;
@@ -649,41 +655,49 @@
     </style>
 </head>
 <body data-theme="dark">
-    <!-- Navbar -->
-    <nav class="navbar navbar-expand-lg navbar-modern">
-        <div class="container">
-            <a class="navbar-brand" href="#">QPTech</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg navbar-modern">
+    <div class="container">
+        <a class="navbar-brand" href="index.html">QPTech</a>
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+            <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarNav">
+            <ul class="navbar-nav ms-auto">
+                <li class="nav-item">
+                    <a class="nav-link" href="#features">Features</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#how-it-works">How It Works</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#showcase">Showcase</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#tips">Tips</a>
+                </li>
+
+                <!-- Dropdown Menu -->
+                <li class="nav-item dropdown">
+                    <a class="nav-link dropdown-toggle" href="#" id="creativeDropdown" role="button" data-bs-toggle="dropdown">
+                        Creative Tools
+                    </a>
+                    <ul class="dropdown-menu" aria-labelledby="creativeDropdown">
+                        <li><a class="dropdown-item" href="everythingai.html">AI Image</a></li>
+                        <li><a class="dropdown-item" href="car.html">Dream Car</a></li>
+                        <li><a class="dropdown-item" href="3dmodel.html">3D Model</a></li>
+                    </ul>
+                </li>
+
+            </ul>
+
+            <!-- Theme Toggle Button -->
+            <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                <i class="fas fa-moon" id="themeIcon"></i>
             </button>
-            <div class="collapse navbar-collapse" id="navbarNav">
-                <ul class="navbar-nav ms-auto">
-                    <li class="nav-item">
-                        <a class="nav-link" href="#features">Features</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#how-it-works">How It Works</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#showcase">Showcase</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#tips">Tips</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="everythingai.html">AI Image</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="car.html">Dream Car</a>
-                    </li>
-                </ul>
-                <!-- Theme Toggle Button -->
-                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
-                    <i class="fas fa-moon" id="themeIcon"></i>
-                </button>
-            </div>
         </div>
-    </nav>
+    </div>
+</nav>
 
     <!-- HERO SECTION (all elements have fade-transition, visible by default but observer will keep them visible) -->
     <section class="hero-ai">
@@ -942,14 +956,8 @@
         <div class="container">
             <div class="row gy-5">
                 <div class="col-lg-4">
-                    <a href="#" class="footer-logo-modern">QPTECH<span style="color: var(--accent-glow);">.</span></a>
-                    <p class="my-4" style="color: var(--text-secondary);">the generative AI platform for visionaries. instantly create images and discover vehicles with advanced reasoning — always free.</p>
-                    <div>
-                        <a href="#" class="social-circle"><i class="fab fa-twitter"></i></a>
-                        <a href="#" class="social-circle"><i class="fab fa-instagram"></i></a>
-                        <a href="#" class="social-circle"><i class="fab fa-github"></i></a>
-                        <a href="#" class="social-circle"><i class="fab fa-discord"></i></a>
-                    </div>
+                    <a href="index.html" class="footer-logo-modern">QPTECH<span style="color: #00fff7;">.</span></a>
+                    <p class="my-4" style="color: #b0b0c0;">the generative AI platform for visionaries. instantly create images and discover vehicles with advanced reasoning — always free.</p>
                 </div>
                 <div class="col-lg-2 col-md-6">
                     <div class="footer-links">
@@ -966,23 +974,18 @@
                         <ul class="list-unstyled">
                             <li class="mb-2"><a href="everythingai.html">AI image generator</a></li>
                             <li class="mb-2"><a href="car.html">Dream car finder</a></li>
-                            <li class="mb-2"><a href="#">Style transfer</a></li>
+                            <li class="mb-2"><a href="3dmodel.html">#3D Modeling</a></li>
                         </ul>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-6">
-                    <div class="footer-links">
-                        <h5 class="text-white mb-4">Resources</h5>
-                        <ul class="list-unstyled">
-                            <li class="mb-2"><a href="#">FAQ</a></li>
-                            <li class="mb-2"><a href="#">Contact</a></li>
-                            <li class="mb-2"><a href="#">Privacy</a></li>
-                        </ul>
-                    </div>
+
                 </div>
             </div>
-            <div class="copyright text-center pt-5 mt-4" style="border-top: 1px solid var(--accent-glow); color: var(--text-muted);">
-                <p>© 2025 QPTECH — where imagination meets intelligence · 100% free</p>
+            <div class="copyright text-center pt-5 mt-4" style="border-top: 1px solid rgba(0,255,247,0.2); color: #6a6a80;">
+                <p>© 2026 QPTECH — where imagination meets intelligence · 100% free</p>
+                <p>Developed by: <strong>BLSQP DEVELOPMENT</strong></p>
+                <p><strong>University of the East</strong></p>
             </div>
         </div>
     </footer>
