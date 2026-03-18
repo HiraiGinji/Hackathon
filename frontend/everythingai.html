@@ -595,7 +595,7 @@
                 <select id="apiBaseSelect" class="form-select" style="width: auto; background: var(--input-bg); border: 1.5px solid var(--border-cyan-dim); color: var(--text-primary); border-radius: 60px; padding: 6px 28px 6px 16px; font-size:0.9rem;">
                     <option value="http://localhost:3000">Local Node.js</option>
                     <option value="https://hackathon-thkh.onrender.com" selected>Render Node.js</option>
-                    <option value="https://nonlosable-designedly-garrison.ngrok-free.dev">Flask ngrok</option>
+                    <option value="https://hiraiginjimu-prompt-generator-api.hf.space"> Prompt Enhancer </option>
                 </select>
                 <button class="btn-outline-cyan" style="padding:6px 20px;" onclick="testBackendConnection()">Test</button>
             </div>
@@ -861,7 +861,7 @@
         const nodeApiBase = document.getElementById('apiBaseSelect').value;
         
         // Define the Flask URL for prompt enhancement
-        const flaskUrl = 'https://nonlosable-designedly-garrison.ngrok-free.dev';
+        const flaskUrl = 'https://hiraiginjimu-prompt-generator-api.hf.space';
         
         if (!userPrompt.trim()) {
             alert('Please enter a prompt first.');
@@ -1205,7 +1205,7 @@
         selectedApiBase = 'https://hackathon-thkh.onrender.com';
         testBackendConnection();
         log('🚀 Using Render Node.js backend', 'info');
-        log('💡 Flask ngrok URL is used only for prompt enhancement', 'info');
+        log('💡 Using Prompt Enhancer', 'info');
         
         // Ensure style selector is properly initialized
         updateSelectedStyle('photorealistic');
