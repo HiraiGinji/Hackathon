@@ -592,7 +592,7 @@
         <div class="d-flex flex-wrap justify-content-end align-items-center mb-3 gap-3">
             <div class="d-flex flex-wrap gap-3 align-items-center">
                 <span style="color: var(--text-secondary); font-size:0.9rem;">API:</span>
-                <select id="apiBaseSelect" class="form-select" style="width: auto; background: var(--input-bg); border: 1.5px solid var(--border-cyan-dim); color: var(--text-primary); border-radius: 60px; padding: 6px 28px 6px 16px; font-size:0.9rem;">
+                <select id="apiBaseSelect" class="form-select" style="width: auto; background: var(--input-bg); border: 1.5px solid var(--border-cyan-dim); color: var(--text-primary); border-radius: 60px; padding: 6px 28px 6px 16px; font-size:0.9rem;" onchange="updateApiBase()">
                     <option value="http://localhost:3000">Local Node.js</option>
                     <option value="https://hackathon-thkh.onrender.com" selected>Render Node.js</option>
                     <option value="https://hiraiginjimu-prompt-generator-api.hf.space"> Prompt Enhancer </option>
@@ -1044,36 +1044,147 @@
                     background: rgba(0,0,0,0.3); border-left: 4px solid #00fff7;
                     padding: 20px; border-radius: 30px; margin: 20px 0;
                 }
+                .current-prompt-container {
+                    background: rgba(0,0,0,0.2);
+                    border-radius: 20px;
+                    padding: 12px 18px;
+                    border: 1px solid rgba(0,255,247,0.1);
+                    position: relative;
+                    overflow: hidden;
+                }
+                .current-prompt-label {
+                    color: #00fff7;
+                    font-size: 0.85rem;
+                    text-transform: uppercase;
+                    letter-spacing: 1px;
+                    margin-bottom: 5px;
+                }
                 .scrolling-prompt {
-                    white-space: pre-wrap;        /* allows line breaks */
-                    word-wrap: break-word;        /* break long words */
-                    overflow-wrap: break-word;    /* modern support */
-                    word-break: break-word;       /* force break if needed */
-                    max-height: 120px;            /* limit height */
-                    overflow-y: auto;             /* scroll if too long */
+                    white-space: nowrap;
+                    animation: scrollText 30s linear infinite;
                     color: #fff;
                     font-size: 1.1rem;
-                    line-height: 1.5;
+                    padding: 5px 0;
+                }
+                .scrolling-prompt:hover {
+                    animation-play-state: paused;
                 }
                 @keyframes scrollText {
-                    0% { transform: translateX(100%); } 50% { transform: translateX(-100%); } 100% { transform: translateX(100%); }
+                    0% { transform: translateX(100%); }
+                    45% { transform: translateX(-100%); }
+                    55% { transform: translateX(-100%); }
+                    100% { transform: translateX(100%); }
                 }
-                .enhanced-prompts { background: rgba(0,0,0,0.2); border-radius: 30px; padding: 15px; margin-top: 15px; }
-                .enhanced-item { padding: 10px; margin: 5px 0; border-radius: 40px; cursor: pointer; transition: 0.2s; }
-                .enhanced-item:hover { background: rgba(0,255,247,0.1); border-left: 4px solid #00fff7; }
-                .enhanced-item.selected { border-left: 4px solid #00fff7; background: rgba(0,255,247,0.05); }
+                .enhanced-prompts { 
+                    background: rgba(0,0,0,0.2); 
+                    border-radius: 30px; 
+                    padding: 15px; 
+                    margin-top: 15px; 
+                    max-height: 200px;
+                    overflow-y: auto;
+                }
+                .enhanced-item { 
+                    padding: 12px 15px; 
+                    margin: 5px 0; 
+                    border-radius: 40px; 
+                    cursor: pointer; 
+                    transition: 0.2s;
+                    background: rgba(0,0,0,0.1);
+                }
+                .enhanced-item:hover { 
+                    background: rgba(0,255,247,0.1); 
+                    border-left: 4px solid #00fff7; 
+                }
+                .enhanced-item.selected { 
+                    border-left: 4px solid #00fff7; 
+                    background: rgba(0,255,247,0.05); 
+                }
                 .status-bar {
-                    background: rgba(8,8,16,0.8); backdrop-filter: blur(15px);
-                    border-radius: 60px; padding: 15px 25px; border-left: 6px solid #00fff7;
-                    display: flex; align-items: center; gap: 15px;
+                    background: rgba(8,8,16,0.8);
+                    backdrop-filter: blur(15px);
+                    border-radius: 60px;
+                    padding: 15px 25px;
+                    border-left: 6px solid #00fff7;
+                    display: flex;
+                    flex-wrap: wrap;
+                    align-items: center;
+                    gap: 15px;
+                    margin-top: 20px;
                 }
-                .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #00fff7; width: 30px; height: 30px; border-radius: 50%; animation: spin 1s linear infinite; }
+                .status-left {
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    flex: 1 1 auto;
+                    min-width: 200px;
+                }
+                .status-right {
+                    display: flex;
+                    align-items: center;
+                    gap: 10px;
+                    flex-wrap: wrap;
+                    justify-content: flex-end;
+                }
+                .loader { 
+                    border: 3px solid rgba(255,255,255,0.1); 
+                    border-top: 3px solid #00fff7; 
+                    width: 30px; 
+                    height: 30px; 
+                    border-radius: 50%; 
+                    animation: spin 1s linear infinite; 
+                    flex-shrink: 0;
+                }
                 @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
-                .download-btn {
-                    background: #00fff7; color: #000; padding: 8px 20px; border-radius: 40px;
-                    font-weight: 600; text-decoration: none; transition: 0.2s;
+                .btn-group {
+                    display: flex;
+                    gap: 8px;
+                    flex-wrap: wrap;
                 }
-                .download-btn:hover { background: #6efff7; transform: translateY(-2px); }
+                .action-btn {
+                    background: #00fff7;
+                    color: #000;
+                    padding: 8px 20px;
+                    border-radius: 40px;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    text-decoration: none;
+                    transition: 0.2s;
+                    border: none;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    white-space: nowrap;
+                }
+                .action-btn:hover { 
+                    background: #6efff7; 
+                    transform: translateY(-2px); 
+                    box-shadow: 0 5px 15px rgba(0,255,247,0.3);
+                }
+                .action-btn i {
+                    font-size: 1rem;
+                }
+                .action-btn.secondary {
+                    background: transparent;
+                    border: 1px solid #00fff7;
+                    color: #00fff7;
+                }
+                .action-btn.secondary:hover {
+                    background: rgba(0,255,247,0.1);
+                    color: #fff;
+                }
+                @media (max-width: 600px) {
+                    .status-bar {
+                        flex-direction: column;
+                        align-items: stretch;
+                    }
+                    .status-right {
+                        justify-content: center;
+                    }
+                    .btn-group {
+                        justify-content: center;
+                    }
+                }
             </style>
         </head>
         <body>
@@ -1084,28 +1195,46 @@
                 </div>
                 <div class="image-info">
                     <h1 class="image-title">${safeTitle}</h1>
-                    ${safeDescription ? `<p style="color:#b0b8c0;">${safeDescription}</p>` : ''}
+                    ${safeDescription ? `<p style="color:#b0b8c0; margin-top:10px;">${safeDescription}</p>` : ''}
+                    
                     <div class="prompt-box">
-                        <div style="color:#00fff7;">Current prompt</div>
-                        <div class="scrolling-prompt" id="currentPrompt">${safePrompt}</div>
+                        <div class="current-prompt-container">
+                            <div class="current-prompt-label">
+                                <i class="fas fa-terminal"></i> CURRENT PROMPT
+                            </div>
+                            <div class="scrolling-prompt" id="currentPrompt">${safePrompt}</div>
+                        </div>
                     </div>
+                    
                     ${safeEnhancedPrompts.length > 1 ? `
                     <div class="enhanced-prompts">
-                        <div style="color:#00fff7;">✨ Enhanced versions</div>
+                        <div style="color:#00fff7; margin-bottom:10px;">
+                            <i class="fas fa-magic"></i> ENHANCED VERSIONS
+                        </div>
                         ${safeEnhancedPrompts.map((p, idx) => `
                             <div class="enhanced-item ${idx === 0 ? 'selected' : ''}" 
                                 onclick="selectPrompt(${idx}, '${p.replace(/'/g, "\\'").replace(/"/g, '&quot;')}')">
-                                <i class="fas fa-magic" style="color:#00fff7;"></i> Version ${idx+1}: ${p.substring(0,60)}...
+                                <i class="fas fa-star" style="color:#00fff7; font-size:0.8rem;"></i> 
+                                Version ${idx+1}: ${p.substring(0,70)}...
                             </div>`).join('')}
                     </div>` : ''}
                 </div>
             </div>
+            
             <div class="status-bar">
-                <span class="loader" id="loader"></span>
-                <div id="status">Starting AI image generation...</div>
-                <div class="button-group">
-                    <button class="download-btn" id="regenerateBtn" onclick="regenerateCurrentImage()" style="display:none;"><i class="fas fa-sync-alt"></i> Regenerate</button>
-                    <div id="downloadContainer"></div>
+                <div class="status-left">
+                    <span class="loader" id="loader"></span>
+                    <div id="status">Starting AI image generation...</div>
+                </div>
+                <div class="status-right">
+                    <div class="btn-group" id="actionButtons">
+                        <button class="action-btn" id="regenerateBtn" onclick="regenerateCurrentImage()" style="display:none;">
+                            <i class="fas fa-sync-alt"></i> Regenerate
+                        </button>
+                        <button class="action-btn" id="downloadBtn" style="display:none;" onclick="downloadImage()">
+                            <i class="fas fa-download"></i> Open in new tab
+                        </button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -1115,32 +1244,65 @@
             let generatedImages = {};
             let isGenerating = false;
 
+            window.downloadImage = function() {
+                const img = document.getElementById('mainImage');
+                const url = img.src;
+                const title = "${safeTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}";
+                
+                if (url.includes('source.unsplash.com') || url.includes('placeholder')) {
+                    alert('Please wait for the AI image to generate first.');
+                    return;
+                }
+                
+                // UPDATED DOWNLOAD BUTTON CODE
+                const a = document.createElement('a');
+                a.href = url;
+                a.target = "_blank";   // important for cross-origin
+                a.rel = "noopener";
+
+                // Some browsers ignore filename for cross-origin
+                a.download = 'ai-image.jpg';
+
+                document.body.appendChild(a);
+                a.click();
+                a.remove();
+            };
+
             window.selectPrompt = function(idx, prompt) {
                 const decoded = prompt.replace(/&quot;/g, '"').replace(/&#39;/g, "'");
                 currentPrompt = decoded;
                 document.getElementById('currentPrompt').innerText = decoded;
                 document.querySelectorAll('.enhanced-item').forEach((el,i) => {
-                    if(i===idx) el.classList.add('selected'); else el.classList.remove('selected');
+                    if(i===idx) el.classList.add('selected'); 
+                    else el.classList.remove('selected');
                 });
                 if(generatedImages[decoded]) {
                     document.getElementById('mainImage').src = generatedImages[decoded];
                     document.getElementById('status').innerHTML = '✅ Using cached image';
                     document.getElementById('loader').style.display = 'none';
-                    document.getElementById('regenerateBtn').style.display = 'inline-block';
-                    document.getElementById('downloadContainer').innerHTML = '<a href="'+generatedImages[decoded]+'" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> View</a>';
-                } else { regenerateWithPrompt(decoded); }
+                    document.getElementById('regenerateBtn').style.display = 'inline-flex';
+                    document.getElementById('downloadBtn').style.display = 'inline-flex';
+                } else { 
+                    regenerateWithPrompt(decoded); 
+                }
             };
-            window.regenerateCurrentImage = ()=> { if(!isGenerating) regenerateWithPrompt(currentPrompt); };
+            
+            window.regenerateCurrentImage = ()=> { 
+                if(!isGenerating) regenerateWithPrompt(currentPrompt); 
+            };
+            
             async function regenerateWithPrompt(p) {
                 if(isGenerating) return;
                 isGenerating = true;
                 document.getElementById('loader').style.display = 'inline-block';
                 document.getElementById('regenerateBtn').style.display = 'none';
+                document.getElementById('downloadBtn').style.display = 'none';
                 document.getElementById('status').innerHTML = 'Regenerating...';
-                document.getElementById('downloadContainer').innerHTML = '';
+                
                 try {
                     const r = await fetch(API_BASE+'/api/generate-image', {
-                        method:'POST', headers:{'Content-Type':'application/json'},
+                        method:'POST', 
+                        headers:{'Content-Type':'application/json'},
                         body: JSON.stringify({prompt:p})
                     });
                     if(!r.ok) throw new Error('failed');
@@ -1148,53 +1310,88 @@
                     pollStatus(d.id, p);
                 } catch(e) {
                     document.getElementById('loader').style.display = 'none';
-                    document.getElementById('status').innerHTML = '❌ Error';
+                    document.getElementById('status').innerHTML = '❌ Error starting generation';
+                    document.getElementById('regenerateBtn').style.display = 'inline-flex';
                     isGenerating = false;
-                    document.getElementById('regenerateBtn').style.display = 'inline-block';
                 }
             }
+            
             async function pollStatus(id, p) {
                 const s = document.getElementById('status');
                 const loader = document.getElementById('loader');
-                const download = document.getElementById('downloadContainer');
                 const img = document.getElementById('mainImage');
                 const regen = document.getElementById('regenerateBtn');
+                const downloadBtn = document.getElementById('downloadBtn');
                 let attempts = 0;
+                
                 const poll = setInterval(async ()=>{
                     try {
                         const stat = await fetch(API_BASE+'/api/image-status/'+id);
                         const st = await stat.json();
+                        
                         if(st.done && st.generations && st.generations[0]) {
                             clearInterval(poll);
                             const url = st.generations[0].img;
+
                             loader.style.display = 'none';
-                            s.innerHTML = '✅ Image generated';
+                            s.innerHTML = '✅ Image generated successfully';
                             img.src = url;
                             generatedImages[p] = url;
-                            regen.style.display = 'inline-block';
-                            download.innerHTML = '<a href="'+url+'" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> View</a>';
+
+                            regen.style.display = 'inline-flex';
+                            downloadBtn.style.display = 'inline-flex';
+
+                            // Update download button to use the new method
+                            downloadBtn.onclick = function(e) {
+                                e.preventDefault();
+                                const a = document.createElement('a');
+                                a.href = url;
+                                a.target = "_blank";
+                                a.rel = "noopener";
+                                a.download = 'ai-image-' + Date.now() + '.jpg';
+                                document.body.appendChild(a);
+                                a.click();
+                                a.remove();
+                            };
+
                             isGenerating = false;
                         } else if(st.faulted) {
-                            clearInterval(poll); loader.style.display = 'none'; s.innerHTML = '❌ Failed'; regen.style.display = 'inline-block'; isGenerating = false;
-                        } else if(attempts++>40) {
-                            clearInterval(poll); loader.style.display = 'none'; s.innerHTML = '⚠️ Timeout'; regen.style.display = 'inline-block'; isGenerating = false;
+                            clearInterval(poll);
+                            loader.style.display = 'none';
+                            s.innerHTML = '❌ Generation failed';
+                            regen.style.display = 'inline-flex';
+                            downloadBtn.style.display = 'none';
+                            isGenerating = false;
+                        } else if(attempts++ > 40) {
+                            clearInterval(poll);
+                            loader.style.display = 'none';
+                            s.innerHTML = '⚠️ Generation timeout';
+                            regen.style.display = 'inline-flex';
+                            downloadBtn.style.display = 'none';
+                            isGenerating = false;
                         } else {
-                            s.innerHTML = '⏳ Queue: '+(st.queue_position||'...');
+                            s.innerHTML = '⏳ Queue position: ' + (st.queue_position || 'waiting...');
                         }
-                    } catch(e){}
+                    } catch(e){
+                        console.log('Poll error:', e);
+                    }
                 }, 4000);
             }
-            // auto start
+            
             (async function auto() {
                 try {
-                    const r = await fetch(API_BASE+'/api/generate-image', { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({prompt:currentPrompt}) });
+                    const r = await fetch(API_BASE+'/api/generate-image', { 
+                        method:'POST', 
+                        headers:{'Content-Type':'application/json'}, 
+                        body:JSON.stringify({prompt:currentPrompt}) 
+                    });
                     if(!r.ok) throw new Error('failed');
                     const d = await r.json();
                     pollStatus(d.id, currentPrompt);
                 } catch(e) {
                     document.getElementById('loader').style.display = 'none';
-                    document.getElementById('status').innerHTML = '❌ Error starting';
-                    document.getElementById('regenerateBtn').style.display = 'inline-block';
+                    document.getElementById('status').innerHTML = '❌ Error starting generation';
+                    document.getElementById('regenerateBtn').style.display = 'inline-flex';
                     isGenerating = false;
                 }
             })();
