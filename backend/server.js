@@ -25,6 +25,11 @@ if (!fs.existsSync('uploads')) {
     fs.mkdirSync('uploads');
 }
 
+// Health check endpoint for Render
+app.get('/health', (req, res) => {
+    res.status(200).send('OK');
+});
+
 // Health check endpoint
 app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Backend is running' });
