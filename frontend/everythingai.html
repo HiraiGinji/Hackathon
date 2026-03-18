@@ -1045,8 +1045,15 @@
                     padding: 20px; border-radius: 30px; margin: 20px 0;
                 }
                 .scrolling-prompt {
-                    white-space: nowrap; animation: scrollText 40s linear infinite;
-                    color: #fff; font-size: 1.1rem;
+                    white-space: pre-wrap;        /* allows line breaks */
+                    word-wrap: break-word;        /* break long words */
+                    overflow-wrap: break-word;    /* modern support */
+                    word-break: break-word;       /* force break if needed */
+                    max-height: 120px;            /* limit height */
+                    overflow-y: auto;             /* scroll if too long */
+                    color: #fff;
+                    font-size: 1.1rem;
+                    line-height: 1.5;
                 }
                 @keyframes scrollText {
                     0% { transform: translateX(100%); } 50% { transform: translateX(-100%); } 100% { transform: translateX(100%); }
