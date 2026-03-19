@@ -4,14 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QPTech · 3D Model Generator</title>
-    <!-- Google Fonts + Font Awesome + Bootstrap 5.3 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
     
-    <!-- Import Three.js and OrbitControls -->
     <script type="importmap">
         {
             "imports": {
@@ -22,9 +20,7 @@
     </script>
     
     <style>
-        /* ---------- PROFESSIONAL CYAN THEME (with light/dark mode) ---------- */
         :root {
-            /* Dark theme (default) */
             --primary-cyan: #00fff7;
             --primary-dark: #0b0b15;
             --surface-dark: #12121c;
@@ -51,7 +47,6 @@
             --control-group-bg: rgba(0, 0, 0, 0.3);
         }
 
-        /* Light mode variables */
         [data-theme="light"] {
             --primary-cyan: #008080;
             --primary-dark: #e0e8f0;
@@ -99,18 +94,17 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 0 20px;
+            padding: 0 12px;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* ----- refined navbar ----- */
         .navbar-professional {
             background: var(--navbar-bg) !important;
             backdrop-filter: blur(18px) saturate(200%);
             -webkit-backdrop-filter: blur(18px) saturate(200%);
             border-bottom: 1px solid var(--border-cyan-dim);
             box-shadow: 0 20px 35px -20px #000;
-            padding: 16px 0;
+            padding: 12px 0;
             border-radius: 0 0 36px 36px;
             margin-bottom: 20px;
             transition: background-color 0.3s ease;
@@ -119,7 +113,7 @@
         .navbar-professional .navbar-brand {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 1.8rem;
             background: linear-gradient(135deg, var(--text-primary), #b0fffc);
             -webkit-background-clip: text;
             background-clip: text;
@@ -153,7 +147,6 @@
             width: 100%;
         }
 
-        /* Theme toggle button */
         .theme-toggle {
             background: transparent;
             border: 1px solid var(--primary-cyan);
@@ -175,7 +168,6 @@
             transform: scale(1.1);
         }
 
-        /* ----- compact hero (cyan theme) ----- */
         .hero-compact {
             margin-bottom: 24px;
             padding: 16px 20px;
@@ -209,7 +201,6 @@
             margin: 0;
         }
 
-        /* main container */
         .main-container {
             max-width: 1300px;
             margin: 0 auto 40px;
@@ -227,7 +218,6 @@
             backdrop-filter: blur(10px);
         }
 
-        /* cards (uniform, refined) */
         .card-professional {
             background: var(--surface-card);
             backdrop-filter: blur(12px);
@@ -263,7 +253,6 @@
             color: var(--primary-cyan);
         }
 
-        /* form elements */
         .input-elegant, textarea, select, input {
             width: 100%;
             padding: 12px 20px;
@@ -283,7 +272,6 @@
             background: var(--surface-card);
         }
 
-        /* primary button - cyan theme */
         .btn-primary-cyan {
             background: var(--primary-cyan);
             color: #000;
@@ -351,7 +339,6 @@
             color: #aaa;
         }
 
-        /* result/log boxes */
         .result-box {
             background: rgba(8, 8, 16, 0.5);
             backdrop-filter: blur(8px);
@@ -368,7 +355,6 @@
             font-size: 0.95rem;
         }
 
-        /* status indicator */
         .api-status {
             font-size: 0.9rem;
             padding: 6px 20px;
@@ -399,7 +385,6 @@
             color: var(--primary-cyan);
         }
 
-        /* Upload area */
         .upload-area {
             border: 2px dashed var(--border-cyan-dim);
             border-radius: 40px;
@@ -448,7 +433,6 @@
             display: block;
         }
 
-        /* Options grid */
         .options-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -486,7 +470,6 @@
             box-shadow: 0 0 0 3px var(--badge-bg);
         }
 
-        /* Progress bar */
         .progress-bar-custom {
             background: rgba(10, 10, 20, 0.6);
             height: 30px;
@@ -509,7 +492,6 @@
             font-size: 0.9rem;
         }
 
-        /* Model viewer */
         .model-viewer {
             width: 100%;
             height: 500px;
@@ -534,7 +516,6 @@
             z-index: 1;
         }
 
-        /* Model controls */
         .model-controls {
             position: absolute;
             bottom: 20px;
@@ -570,7 +551,6 @@
             border-color: var(--primary-cyan);
         }
 
-        /* Position controls panel */
         .position-controls-panel {
             position: absolute !important;
             bottom: 20px !important;
@@ -676,7 +656,6 @@
             border-radius: 20px;
         }
 
-        /* Status badges */
         .status-badge {
             display: inline-block;
             padding: 4px 16px;
@@ -703,7 +682,6 @@
             color: #f44336;
         }
 
-        /* Model info */
         .model-info {
             background: var(--model-info-bg);
             backdrop-filter: blur(6px);
@@ -737,7 +715,6 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* footer refined */
         .footer-professional {
             background: var(--footer-bg);
             backdrop-filter: blur(18px);
@@ -787,17 +764,18 @@
             padding-left: 5px;
         }
         
-        /* footer */
         .footer-modern {
             background: rgba(8,8,16,0.9);
             backdrop-filter: blur(10px);
             border-top: 1px solid rgba(0,255,247,0.3);
-            padding: 70px 0 30px;
+            padding: 50px 0 25px;
             width: 100%;
             flex-shrink: 0;
+            border-radius: 44px 44px 0 0;
+            margin-top: 30px;
         }
         .footer-logo-modern {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 700;
             font-family: 'Space Grotesk', sans-serif;
             background: linear-gradient(145deg, #fff, #8afff7);
@@ -806,20 +784,19 @@
             color: transparent;
         }
 
-        /* back to top */
         .back-to-top {
             position: fixed;
             bottom: 30px;
-            right: 30px;
-            width: 52px;
-            height: 52px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
             background: var(--primary-cyan);
-            border-radius: 30px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #000;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             opacity: 0;
             transition: opacity 0.3s;
             border: 1px solid rgba(255,255,255,0.3);
@@ -827,7 +804,6 @@
             box-shadow: 0 10px 25px var(--primary-cyan);
         }
 
-        /* align helper */
         .flex-center {
             display: flex;
             align-items: center;
@@ -835,35 +811,50 @@
         }
 
         @media (max-width: 768px) {
+            body {
+                padding: 0 10px;
+            }
             .hero-compact { flex-direction: column; align-items: flex-start; }
             .navbar-professional .navbar-brand { font-size: 1.6rem; }
             .options-grid { grid-template-columns: 1fr; }
+            .back-to-top {
+                right: 15px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
         }
     </style>
 </head>
 <body data-theme="dark">
-    <!-- PROFESSIONAL NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-professional sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">QPTech</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarProf">
-                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
-            </button>
+            
+            <div class="d-flex align-items-center gap-2 order-lg-3">
+                <button class="theme-toggle d-lg-none" onclick="toggleTheme()" id="themeToggleMobile">
+                    <i class="fas fa-moon" id="themeIconMobile"></i>
+                </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarProf">
+                    <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+                </button>
+            </div>
+
             <div class="collapse navbar-collapse" id="navbarProf">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="everythingai.html">Generate AI Image</a></li>
                     <li class="nav-item"><a class="nav-link" href="car.html">Create your Dream Car</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Generate 3D Model</a></li>
+                    <li class="nav-item d-none d-lg-block">
+                        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                            <i class="fas fa-moon" id="themeIcon"></i>
+                        </button>
+                    </li>
                 </ul>
-                <!-- Theme Toggle Button -->
-                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
-                    <i class="fas fa-moon" id="themeIcon"></i>
-                </button>
             </div>
         </div>
     </nav>
 
-    <!-- COMPACT HERO (cyan theme) -->
     <div class="container">
         <div class="hero-compact">
             <div class="tagline">
@@ -889,7 +880,6 @@
     </div>
 
     <div class="main-container container">
-        <!-- API Status and Balance Row -->
         <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
             <div class="flex-center">
                 <span style="color: var(--text-secondary);">Balance:</span>
@@ -898,7 +888,6 @@
             </div>
         </div>
 
-        <!-- Card 1: Upload Image -->
         <div class="card-professional">
             <div class="section-title">
                 <span>1️⃣</span> Upload Image
@@ -918,7 +907,6 @@
             </div>
         </div>
 
-        <!-- Card 2: Advanced Options -->
         <div class="card-professional">
             <div class="section-title">
                 <span>2️⃣</span> Advanced Options
@@ -971,7 +959,6 @@
             </div>
         </div>
 
-        <!-- Card 3: Generation Progress -->
         <div class="card-professional" id="progressSection" style="display: none;">
             <div class="section-title">
                 <span>3️⃣</span> Generating 3D Model
@@ -987,7 +974,6 @@
             <div class="result-box" id="statusLog"></div>
         </div>
 
-        <!-- Card 4: 3D Model Viewer -->
         <div class="card-professional" id="viewerSection" style="display: none;">
             <div class="section-title">
                 <span>4️⃣</span> Your 3D Model
@@ -1002,7 +988,6 @@
                     <div class="control-btn" onclick="downloadModel()" title="Download"><i class="fas fa-download"></i></div>
                 </div>
                 
-                <!-- Position Controls Panel -->
                 <div class="position-controls-panel" id="positionPanel">
                     <div class="position-header" onclick="togglePositionPanel()">
                         <i class="fas fa-sliders-h"></i> Position Controls
@@ -1055,7 +1040,6 @@
             </div>
         </div>
 
-        <!-- Card 5: Log -->
         <div class="card-professional">
             <div class="section-title"><span>📋</span> Activity log</div>
             <div id="logResults" class="result-box" style="max-height: 200px;">Ready...</div>
@@ -1063,7 +1047,6 @@
         </div>
     </div>
 
-    <!-- FOOTER -->
     <footer class="footer-modern">
         <div class="container">
             <div class="row gy-5">
@@ -1102,41 +1085,42 @@
         </div>
     </footer>
 
-    <!-- BACK TO TOP -->
     <a href="#" class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></a>
 
     <script>
-        // ---------- LIGHT/DARK MODE TOGGLE ----------
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
+            const themeIconMobile = document.getElementById('themeIconMobile');
             
             if (body.getAttribute('data-theme') === 'dark') {
                 body.setAttribute('data-theme', 'light');
-                themeIcon.className = 'fas fa-sun';
+                if (themeIcon) themeIcon.className = 'fas fa-sun';
+                if (themeIconMobile) themeIconMobile.className = 'fas fa-sun';
                 localStorage.setItem('theme', 'light');
                 log('🌞 Light mode activated', 'info');
             } else {
                 body.setAttribute('data-theme', 'dark');
-                themeIcon.className = 'fas fa-moon';
+                if (themeIcon) themeIcon.className = 'fas fa-moon';
+                if (themeIconMobile) themeIconMobile.className = 'fas fa-moon';
                 localStorage.setItem('theme', 'dark');
                 log('🌙 Dark mode activated', 'info');
             }
         }
 
-        // Load saved theme preference
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
-        document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        const themeIcon = document.getElementById('themeIcon');
+        const themeIconMobile = document.getElementById('themeIconMobile');
+        if (themeIcon) themeIcon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        if (themeIconMobile) themeIconMobile.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
     </script>
 
     <script type="module">
-        // Import Three.js modules
         import * as THREE from 'three';
         import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
         import { GLTFLoader } from 'three/addons/loaders/GLTFLoader.js';
         
-        // Global variables
         let scene, camera, renderer, controls, model;
         let currentModelUrl = null;
         let currentTaskId = null;
@@ -1144,10 +1128,8 @@
         let isWireframe = false;
         let originalModelHeight = 0;
         
-        // Configuration
         const API_BASE = window.location.hostname === 'localhost' ? 'http://localhost:3000' : '';
         
-        // Force panel visibility function
         function ensurePanelVisible() {
             const panel = document.getElementById('positionPanel');
             const viewer = document.getElementById('viewerSection');
@@ -1160,22 +1142,18 @@
             }
         }
         
-        // Force render function
         function forceRender() {
             if (renderer && scene && camera) {
                 renderer.render(scene, camera);
             }
         }
         
-        // Initialize Three.js scene
         function initThree() {
             const container = document.getElementById('modelViewer');
             
-            // Create scene
             scene = new THREE.Scene();
             scene.background = new THREE.Color(0x111111);
             
-            // Add lights
             const ambientLight = new THREE.AmbientLight(0xffffff, 0.5);
             scene.add(ambientLight);
             
@@ -1187,16 +1165,13 @@
             backLight.position.set(-1, -1, -1);
             scene.add(backLight);
             
-            // Add grid helper
             const gridHelper = new THREE.GridHelper(10, 20, 0x00fff7, 0x00a8a0);
             scene.add(gridHelper);
             
-            // Camera
             camera = new THREE.PerspectiveCamera(45, container.clientWidth / container.clientHeight, 0.1, 1000);
             camera.position.set(3, 2, 5);
             camera.lookAt(0, 1, 0);
             
-            // Renderer
             renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
             renderer.setSize(container.clientWidth, container.clientHeight);
             renderer.setPixelRatio(window.devicePixelRatio);
@@ -1204,7 +1179,6 @@
             container.innerHTML = '';
             container.appendChild(renderer.domElement);
             
-            // Controls
             controls = new OrbitControls(camera, renderer.domElement);
             controls.enableDamping = true;
             controls.dampingFactor = 0.05;
@@ -1217,7 +1191,6 @@
             animate();
         }
         
-        // Animation loop
         function animate() {
             requestAnimationFrame(animate);
             
@@ -1230,7 +1203,6 @@
             }
         }
         
-        // Update model position from sliders
         window.updateModelPosition = function() {
             if (!model) return;
             
@@ -1256,7 +1228,6 @@
             forceRender();
         };
 
-        // Update model scale
         window.updateModelScale = function() {
             if (!model) return;
             
@@ -1272,7 +1243,6 @@
             forceRender();
         };
 
-        // Update model rotation
         window.updateModelRotation = function() {
             if (!model) return;
             
@@ -1288,7 +1258,6 @@
             forceRender();
         };
 
-        // Reset position to ground level
         window.resetPosition = function() {
             if (!model) return;
             
@@ -1316,7 +1285,6 @@
             forceRender();
         };
 
-        // Quick lift to raise model
         window.liftModel = function() {
             if (!model) return;
             
@@ -1336,7 +1304,6 @@
             forceRender();
         };
 
-        // Center model horizontally
         window.centerModel = function() {
             if (!model) return;
             
@@ -1359,7 +1326,6 @@
             forceRender();
         };
 
-        // Toggle auto-rotate
         window.toggleAutoRotate = function() {
             if (controls) {
                 controls.autoRotate = !controls.autoRotate;
@@ -1367,7 +1333,6 @@
             }
         };
 
-        // Toggle position panel
         window.togglePositionPanel = function() {
             const content = document.getElementById('positionContent');
             const icon = document.getElementById('positionToggleIcon');
@@ -1383,7 +1348,6 @@
             }
         };
         
-        // Load and display 3D model
         function loadModel(url) {
             if (!scene || !renderer) {
                 initThree();
@@ -1460,7 +1424,6 @@
             }, 100);
         }
         
-        // Handle window resize
         window.addEventListener('resize', () => {
             if (renderer && camera) {
                 const container = document.getElementById('modelViewer');
@@ -1471,7 +1434,6 @@
             }
         });
         
-        // Expose functions to global scope
         window.resetView = function() {
             if (controls) {
                 controls.target.set(0, 1, 0);
@@ -1497,9 +1459,6 @@
             }
         };
         
-        // ============= API FUNCTIONS =============
-        
-        // Test backend connection
         window.testBackendConnection = async function() {
             const statusEl = document.getElementById('apiStatus');
             
@@ -1522,7 +1481,6 @@
             }
         };
         
-        // Check Tripo3D balance
         window.checkBalance = async function() {
             const tripoStatus = document.getElementById('tripoStatus');
             const balanceDisplay = document.getElementById('balanceDisplay');
@@ -1547,7 +1505,6 @@
             }
         };
         
-        // Handle image upload
         window.handleImageUpload = async function(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -1588,7 +1545,6 @@
             }
         };
         
-        // Start generation
         window.startGeneration = async function() {
             if (!currentImageToken) {
                 log('❌ Please upload an image first', 'error');
@@ -1600,6 +1556,10 @@
             
             document.getElementById('progressSection').style.display = 'block';
             document.getElementById('viewerSection').style.display = 'none';
+            
+            setTimeout(() => {
+                document.getElementById('progressSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 100);
             
             log('🚀 Starting 3D generation...', 'info');
             
@@ -1631,7 +1591,6 @@
             }
         };
         
-        // Poll task status
         async function pollTaskStatus(taskId, shouldRefine = false) {
             const statusEl = document.getElementById('taskStatus');
             const progressEl = document.getElementById('taskProgress');
@@ -1684,6 +1643,10 @@
                                 }
                                 
                                 loadModel(modelUrl);
+                                
+                                setTimeout(() => {
+                                    document.getElementById('viewerSection').scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                }, 500);
                             }, 100);
                             
                             log(`✅ Model generated successfully!`, 'success');
@@ -1708,7 +1671,6 @@
             }
         }
         
-        // Refine model
         window.refineModel = async function(taskId) {
             try {
                 const response = await fetch(`${API_BASE}/api/tripo/refine`, {
@@ -1730,7 +1692,6 @@
             }
         };
         
-        // Convert model format
         window.convertModel = async function() {
             if (!currentTaskId) {
                 log('❌ No model to convert', 'error');
@@ -1766,7 +1727,6 @@
             }
         };
         
-        // Download model
         window.downloadModel = function() {
             if (currentModelUrl) {
                 window.open(currentModelUrl, '_blank');
@@ -1776,7 +1736,6 @@
             }
         };
         
-        // Reset all
         window.resetAll = function() {
             currentImageToken = null;
             currentTaskId = null;
@@ -1800,7 +1759,6 @@
             log('🔄 Reset complete', 'info');
         };
         
-        // Log function
         function log(message, type = 'info') {
             const logEl = document.getElementById('logResults');
             const timestamp = new Date().toLocaleTimeString();
@@ -1813,7 +1771,6 @@
             document.getElementById('logResults').innerHTML = '';
         };
         
-        // Initialize on page load
         window.onload = function() {
             testBackendConnection();
             checkBalance();
