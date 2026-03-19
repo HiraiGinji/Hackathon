@@ -579,7 +579,7 @@
         <div class="hero-compact">
             <div class="tagline">
                 <span class="badge-cyan"><i class="fas fa-bolt me-1"></i> AI Image Generator</span>
-                <p class="mb-0">Mistral + Horde · free</p>
+                <p class="mb-0"></p>
             </div>
             <div class="flex-center">
                 <span class="api-status disconnected" id="apiStatus">🔴 Backend: Disconnected</span>
@@ -588,18 +588,6 @@
     </div>
 
     <div class="main-container container">
-        <!-- API selector row (directly under hero) -->
-        <div class="d-flex flex-wrap justify-content-end align-items-center mb-3 gap-3">
-            <div class="d-flex flex-wrap gap-3 align-items-center">
-                <span style="color: var(--text-secondary); font-size:0.9rem;">API:</span>
-                <select id="apiBaseSelect" class="form-select" style="width: auto; background: var(--input-bg); border: 1.5px solid var(--border-cyan-dim); color: var(--text-primary); border-radius: 60px; padding: 6px 28px 6px 16px; font-size:0.9rem;" onchange="updateApiBase()">
-                    <option value="http://localhost:3000">Local Node.js</option>
-                    <option value="https://hackathon-thkh.onrender.com" selected>Render Node.js</option>
-                    <option value="https://hiraiginjimu-prompt-generator-api.hf.space"> Prompt Enhancer </option>
-                </select>
-                <button class="btn-outline-cyan" style="padding:6px 20px;" onclick="testBackendConnection()">Test</button>
-            </div>
-        </div>
 
         <!-- Card 1: Prompt input + style selector (text display) -->
         <div class="card-professional mb-4">
@@ -656,7 +644,7 @@
         <!-- Card 2: AI Horde status -->
         <div class="card-professional mb-4">
             <div class="section-title">
-                <span>2️⃣</span> AI Horde <span class="tab-indicator">opens new tab</span>
+                <span>2️⃣</span> Generate <span class="tab-indicator">opens new tab</span>
             </div>
             <div id="hordeResult" class="result-box">Click "Generate Image" to open a new tab with live generation.</div>
         </div>
@@ -738,21 +726,10 @@
     // ---------- BACKEND CONNECTIONS ----------
     let generatedTitle = 'Your Prompt';
     let generatedDescription = '';
-    let selectedApiBase = 'https://hackathon-thkh.onrender.com';
-
-    function updateApiBase() {
-        const select = document.getElementById('apiBaseSelect');
-        selectedApiBase = select.value;
-        log(`🔧 API Base changed to: ${selectedApiBase}`, 'info');
-        testBackendConnection();
-    }
-
-    function getApiBaseUrl() {
-        return selectedApiBase;
-    }
+    const NODE_API_BASE = 'https://hackathon-thkh.onrender.com';
+    const FLASK_API_BASE = 'https://hiraiginjimu-prompt-generator-api.hf.space';
 
     async function testBackendConnection() {
-        const apiBase = getApiBaseUrl();
         const statusEl = document.getElementById('apiStatus');
         const generateBtn = document.getElementById('generateBtn');
         
@@ -761,10 +738,7 @@
         
         try {
             const headers = { 'Content-Type': 'application/json' };
-            if (apiBase.includes('ngrok')) {
-                headers['ngrok-skip-browser-warning'] = 'true';
-            }
-            const response = await fetch(`${apiBase}/api/health`, {
+            const response = await fetch(`${NODE_API_BASE}/api/health`, {
                 method: 'GET',
                 headers: headers
             });
@@ -858,10 +832,6 @@
     async function generateImage() {
         const userPrompt = document.getElementById('userPrompt').value;
         const style = document.getElementById('styleSelect').value;
-        const nodeApiBase = document.getElementById('apiBaseSelect').value;
-        
-        // Define the Flask URL for prompt enhancement
-        const flaskUrl = 'https://hiraiginjimu-prompt-generator-api.hf.space';
         
         if (!userPrompt.trim()) {
             alert('Please enter a prompt first.');
@@ -872,7 +842,7 @@
         const sanitizedStyle = sanitizeInput(style);
         
         document.getElementById('hordeResult').innerHTML = '🎨 Enhancing prompt with AI...';
-        generateBtn.disabled = true;
+        document.getElementById('generateBtn').disabled = true;
         
         try {
             // Get selected style
@@ -884,7 +854,7 @@
             // STEP 1: Enhance the prompt - CALL FLASK DIRECTLY
             let enhanceResponse;
             try {
-                enhanceResponse = await fetch(`${flaskUrl}/generate`, {
+                enhanceResponse = await fetch(`${FLASK_API_BASE}/generate`, {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
@@ -932,7 +902,7 @@
                     'Content-Type': 'application/json'
                 };
                 
-                const titleResponse = await fetch(`${nodeApiBase}/api/generate-title`, {
+                const titleResponse = await fetch(`${NODE_API_BASE}/api/generate-title`, {
                     method: 'POST',
                     headers: titleHeaders,
                     body: JSON.stringify({ prompt: enhancedPrompt })
@@ -971,7 +941,7 @@
             const finalPrompt = enhancedPrompt;
             
             // STEP 3: Open generation tab with enhanced prompt
-            openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts, nodeApiBase);
+            openGenerationTab(finalPrompt, generatedTitle, generatedDescription, enhancedPrompts);
             document.getElementById('hordeResult').innerHTML = `✅ New tab opened: "${generatedTitle}" (Enhanced prompt)`;
             log(`🎨 Opened generation tab with enhanced prompt`, 'success');
             
@@ -979,19 +949,18 @@
             console.error('Error in generateImage:', error);
             log(`❌ Error: ${error.message}`, 'error');
             const finalPrompt = `${sanitizedPrompt}, ${sanitizedStyle}`;
-            openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt], nodeApiBase);
+            openGenerationTab(finalPrompt, 'AI Generated Image', '', [sanitizedPrompt]);
             document.getElementById('hordeResult').innerHTML = `✅ New tab opened (using original prompt)`;
         } finally {
-            generateBtn.disabled = false;
+            document.getElementById('generateBtn').disabled = false;
         }
     }
 
-    function openGenerationTab(finalPrompt, title, description, enhancedPrompts = [], apiBase) {
+    function openGenerationTab(finalPrompt, title, description, enhancedPrompts = []) {
         const safeTitle = sanitizeInput(title);
         const safeDescription = sanitizeInput(description);
         const safePrompt = sanitizeInput(finalPrompt);
         const safeEnhancedPrompts = enhancedPrompts.map(p => sanitizeInput(p));
-        const safeApiBase = apiBase;
         
         const htmlContent = `<!DOCTYPE html>
         <html lang="en">
@@ -1060,20 +1029,21 @@
                     margin-bottom: 5px;
                 }
                 .scrolling-prompt {
+                    display: inline-block;
                     white-space: nowrap;
-                    animation: scrollText 30s linear infinite;
-                    color: #fff;
-                    font-size: 1.1rem;
-                    padding: 5px 0;
+                    padding-left: 100%;
+                    animation: scrollText 20s linear infinite;
                 }
                 .scrolling-prompt:hover {
                     animation-play-state: paused;
                 }
                 @keyframes scrollText {
-                    0% { transform: translateX(100%); }
-                    45% { transform: translateX(-100%); }
-                    55% { transform: translateX(-100%); }
-                    100% { transform: translateX(100%); }
+                    0% {
+                        transform: translateX(0%);
+                    }
+                    100% {
+                        transform: translateX(-100%);
+                    }
                 }
                 .enhanced-prompts { 
                     background: rgba(0,0,0,0.2); 
@@ -1239,7 +1209,7 @@
             </div>
         </div>
         <script>
-            const API_BASE = "${safeApiBase}";
+            const API_BASE = "${NODE_API_BASE}";
             let currentPrompt = "${safePrompt.replace(/"/g, '\\"').replace(/'/g, "\\'")}";
             let generatedImages = {};
             let isGenerating = false;
@@ -1405,8 +1375,6 @@
     }
 
     window.onload = function() {
-        document.getElementById('apiBaseSelect').value = 'https://hackathon-thkh.onrender.com';
-        selectedApiBase = 'https://hackathon-thkh.onrender.com';
         testBackendConnection();
         log('🚀 Using Render Node.js backend', 'info');
         log('💡 Using Prompt Enhancer', 'info');
