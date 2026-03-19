@@ -4,16 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>QPTech · Dream Car Generator</title>
-    <!-- Google Fonts + Font Awesome + Bootstrap 5.3 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        /* ---------- PROFESSIONAL CYAN THEME (with light/dark mode) ---------- */
         :root {
-            /* Dark theme (default) */
             --primary-cyan: #00fff7;
             --primary-dark: #0b0b15;
             --surface-dark: #12121c;
@@ -38,7 +35,6 @@
             --nav-bg: rgba(10, 10, 20, 0.6);
         }
 
-        /* Light mode variables */
         [data-theme="light"] {
             --primary-cyan: #008080;
             --primary-dark: #e0e8f0;
@@ -84,18 +80,17 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
-            padding: 0 20px;
+            padding: 0 12px;
             transition: background-color 0.3s ease, color 0.3s ease;
         }
 
-        /* ----- refined navbar ----- */
         .navbar-professional {
             background: var(--navbar-bg) !important;
             backdrop-filter: blur(18px) saturate(200%);
             -webkit-backdrop-filter: blur(18px) saturate(200%);
             border-bottom: 1px solid var(--border-cyan-dim);
             box-shadow: 0 20px 35px -20px #000;
-            padding: 16px 0;
+            padding: 12px 0;
             border-radius: 0 0 36px 36px;
             margin-bottom: 20px;
             transition: background-color 0.3s ease;
@@ -104,7 +99,7 @@
         .navbar-professional .navbar-brand {
             font-family: 'Space Grotesk', sans-serif;
             font-weight: 700;
-            font-size: 2rem;
+            font-size: 1.8rem;
             background: linear-gradient(135deg, var(--text-primary), #b0fffc);
             -webkit-background-clip: text;
             background-clip: text;
@@ -138,7 +133,6 @@
             width: 100%;
         }
 
-        /* Theme toggle button */
         .theme-toggle {
             background: transparent;
             border: 1px solid var(--primary-cyan);
@@ -160,7 +154,6 @@
             transform: scale(1.1);
         }
 
-        /* ----- compact hero (cyan theme) ----- */
         .hero-compact {
             margin-bottom: 24px;
             padding: 16px 20px;
@@ -194,13 +187,11 @@
             margin: 0;
         }
 
-        /* main container */
         .main-container {
             max-width: 1300px;
             margin: 0 auto 40px;
         }
 
-        /* cards (uniform, refined) */
         .card-professional {
             background: var(--surface-card);
             backdrop-filter: blur(12px);
@@ -235,7 +226,6 @@
             color: var(--primary-cyan);
         }
 
-        /* form elements */
         .input-elegant, textarea {
             width: 100%;
             padding: 14px 22px;
@@ -255,7 +245,6 @@
             background: var(--surface-card);
         }
 
-        /* primary button - cyan theme */
         .btn-primary-cyan {
             background: var(--primary-cyan);
             color: #000;
@@ -298,7 +287,6 @@
             color: var(--text-primary);
         }
 
-        /* result/log boxes */
         .result-box {
             background: rgba(8, 8, 16, 0.5);
             backdrop-filter: blur(8px);
@@ -315,7 +303,6 @@
             font-size: 0.95rem;
         }
 
-        /* status indicator */
         .api-status {
             font-size: 0.9rem;
             padding: 6px 20px;
@@ -346,7 +333,6 @@
             color: var(--primary-cyan);
         }
 
-        /* Car showcase styling - cyan theme */
         .car-showcase {
             background: var(--car-card-bg);
             backdrop-filter: blur(8px);
@@ -488,7 +474,6 @@
             border: 1px solid var(--border-cyan-dim);
         }
 
-        /* Navigation arrows - cyan theme */
         .navigation-arrows {
             display: flex;
             justify-content: center;
@@ -551,18 +536,361 @@
         }
         @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
 
-        /* footer */
+        .gallery-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 10000;
+            backdrop-filter: blur(10px);
+            align-items: center;
+            justify-content: center;
+        }
+
+        .gallery-modal.active {
+            display: flex;
+        }
+
+        .gallery-modal-content {
+            max-width: 95vw;
+            max-height: 90vh;
+            position: relative;
+            border-radius: 30px;
+            overflow: hidden;
+            border: 3px solid var(--primary-cyan);
+            box-shadow: 0 0 50px var(--primary-cyan);
+        }
+
+        .gallery-modal img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        .gallery-modal-close {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: var(--primary-cyan);
+            color: #000;
+            width: 44px;
+            height: 44px;
+            border-radius: 22px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 1.3rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            transition: all 0.2s ease;
+            z-index: 10001;
+        }
+
+        .gallery-modal-close:hover {
+            transform: scale(1.1);
+            background: #ff5050;
+            color: white;
+        }
+
+        .gallery-modal-info {
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
+            right: 10px;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(10px);
+            padding: 15px 20px;
+            border-radius: 30px;
+            border: 1px solid var(--border-cyan-dim);
+            color: var(--text-primary);
+        }
+
+        .gallery-modal-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: var(--primary-cyan);
+            margin-bottom: 5px;
+        }
+
+        .gallery-modal-date {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        .gallery-modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 12px;
+            flex-wrap: wrap;
+        }
+
+        .gallery-modal-action-btn {
+            background: var(--badge-bg);
+            border: 1px solid var(--primary-cyan);
+            color: var(--text-primary);
+            padding: 8px 14px;
+            border-radius: 30px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            flex: 1 1 auto;
+            justify-content: center;
+        }
+
+        .gallery-modal-action-btn:hover {
+            background: var(--primary-cyan);
+            color: #000;
+        }
+
+        .gallery-modal-action-btn.delete:hover {
+            background: #ff5050;
+            border-color: #ff5050;
+            color: white;
+        }
+
+        .floating-gallery-btn {
+            position: fixed;
+            bottom: 100px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
+            background: var(--primary-cyan);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #000;
+            font-size: 1.2rem;
+            border: 1px solid rgba(255,255,255,0.3);
+            z-index: 998;
+            box-shadow: 0 10px 25px var(--primary-cyan);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .floating-gallery-btn:hover {
+            transform: scale(1.1) translateY(-5px);
+        }
+
+        .gallery-badge {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            background: #ff5050;
+            color: white;
+            width: 20px;
+            height: 20px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            font-weight: 600;
+            border: 2px solid var(--primary-cyan);
+        }
+
+        .gallery-drawer {
+            position: fixed;
+            top: 0;
+            right: -100%;
+            width: 100%;
+            max-width: 380px;
+            height: 100vh;
+            background: var(--navbar-bg);
+            backdrop-filter: blur(20px);
+            border-left: 3px solid var(--primary-cyan);
+            box-shadow: -10px 0 30px rgba(0,255,247,0.2);
+            z-index: 10000;
+            transition: right 0.3s ease;
+            padding: 20px 16px;
+            overflow-y: auto;
+        }
+
+        @media (max-width: 480px) {
+            .gallery-drawer {
+                max-width: 100%;
+            }
+        }
+
+        .gallery-drawer.open {
+            right: 0;
+        }
+
+        .gallery-drawer-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid var(--border-cyan-dim);
+        }
+
+        .gallery-drawer-title {
+            font-size: 1.4rem;
+            font-weight: 700;
+            color: var(--primary-cyan);
+            font-family: 'Space Grotesk', sans-serif;
+        }
+
+        .gallery-drawer-close {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: var(--badge-bg);
+            border: 1px solid var(--border-cyan-dim);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .gallery-drawer-close:hover {
+            background: var(--primary-cyan);
+            color: #000;
+            transform: rotate(90deg);
+        }
+
+        .gallery-drawer-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            user-select: none;
+            margin-bottom: 20px;
+        }
+
+        .gallery-drawer-item {
+            aspect-ratio: 1;
+            border-radius: 12px;
+            overflow: hidden;
+            border: 2px solid var(--border-cyan-dim);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .gallery-drawer-item:hover {
+            border-color: var(--primary-cyan);
+            transform: scale(1.02);
+        }
+
+        .gallery-drawer-item.selected {
+            border-color: var(--primary-cyan);
+            box-shadow: 0 0 0 3px var(--badge-bg);
+        }
+
+        .gallery-drawer-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .selection-toolbar {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--navbar-bg);
+            backdrop-filter: blur(15px);
+            border: 2px solid var(--primary-cyan);
+            border-radius: 60px;
+            padding: 12px 20px;
+            display: flex;
+            gap: 10px;
+            z-index: 10001;
+            box-shadow: 0 10px 40px var(--primary-cyan);
+            display: none;
+            width: auto;
+            max-width: calc(100% - 40px);
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .selection-toolbar.active {
+            display: flex;
+            align-items: center;
+        }
+
+        .selection-count {
+            color: var(--primary-cyan);
+            font-weight: 600;
+            padding: 0 10px;
+            border-right: 1px solid var(--border-cyan-dim);
+            line-height: 1;
+            display: flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 600px) {
+            .selection-toolbar {
+                padding: 12px 16px;
+                gap: 8px;
+                bottom: 20px;
+                width: calc(100% - 30px);
+                max-width: 500px;
+                border-radius: 40px;
+            }
+            .selection-toolbar .btn-outline-cyan {
+                padding: 8px 14px;
+                font-size: 0.9rem;
+                white-space: nowrap;
+            }
+            .selection-count {
+                font-size: 0.9rem;
+                padding-right: 12px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .selection-toolbar {
+                padding: 10px 12px;
+                bottom: 15px;
+                width: calc(100% - 20px);
+            }
+            .selection-toolbar .btn-outline-cyan {
+                padding: 6px 10px;
+                font-size: 0.8rem;
+            }
+        }
+
+        .gallery-empty-import {
+            padding: 20px 0;
+            border-top: 1px solid var(--border-cyan-dim);
+        }
+
+        .gallery-empty-import .btn-outline-cyan {
+            background: var(--badge-bg);
+            border: 2px solid var(--primary-cyan);
+            transition: all 0.2s ease;
+        }
+
+        .gallery-empty-import .btn-outline-cyan:hover {
+            background: var(--primary-cyan);
+            color: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px var(--primary-cyan);
+        }
+
         .footer-modern {
             background: var(--footer-bg);
             backdrop-filter: blur(10px);
             border-top: 1px solid var(--accent-glow);
-            padding: 70px 0 30px;
+            padding: 50px 0 25px;
             width: 100%;
             flex-shrink: 0;
             transition: background-color 0.3s ease;
+            margin-top: 30px;
+            border-radius: 44px 44px 0 0;
         }
         .footer-logo-modern {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 700;
             font-family: 'Space Grotesk', sans-serif;
             background: linear-gradient(145deg, var(--text-primary), var(--primary-cyan));
@@ -598,20 +926,19 @@
             padding-left: 5px;
         }
 
-        /* back to top */
         .back-to-top {
             position: fixed;
             bottom: 30px;
-            right: 30px;
-            width: 52px;
-            height: 52px;
+            right: 20px;
+            width: 48px;
+            height: 48px;
             background: var(--primary-cyan);
-            border-radius: 30px;
+            border-radius: 24px;
             display: flex;
             align-items: center;
             justify-content: center;
             color: #000;
-            font-size: 1.3rem;
+            font-size: 1.2rem;
             opacity: 0;
             transition: opacity 0.3s;
             border: 1px solid rgba(255,255,255,0.3);
@@ -619,7 +946,6 @@
             box-shadow: 0 10px 25px var(--primary-cyan);
         }
 
-        /* align helper */
         .flex-center {
             display: flex;
             align-items: center;
@@ -627,30 +953,58 @@
         }
 
         @media (max-width: 768px) {
-            .hero-compact { flex-direction: column; align-items: flex-start; }
-            .navbar-professional .navbar-brand { font-size: 1.6rem; }
-            .car-title { font-size: 1.8rem; }
+            body {
+                padding: 0 10px;
+            }
+            .hero-compact { 
+                flex-direction: column; 
+                align-items: flex-start; 
+                padding: 12px 16px;
+            }
+            .navbar-professional .navbar-brand { 
+                font-size: 1.6rem; 
+            }
+            .car-title { 
+                font-size: 1.8rem; 
+            }
+            .floating-gallery-btn,
+            .back-to-top {
+                right: 15px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.1rem;
+            }
+            .floating-gallery-btn {
+                bottom: 90px;
+            }
         }
     </style>
 </head>
 <body data-theme="dark">
-    <!-- PROFESSIONAL NAVBAR -->
     <nav class="navbar navbar-expand-lg navbar-professional sticky-top">
         <div class="container">
             <a class="navbar-brand" href="index.html">QPTech</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarProf">
-                <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
-            </button>
+            
+            <div class="d-flex align-items-center gap-2 order-lg-3">
+                <button class="theme-toggle d-lg-none" onclick="toggleTheme()" id="themeToggleMobile">
+                    <i class="fas fa-moon" id="themeIconMobile"></i>
+                </button>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarProf">
+                    <span class="navbar-toggler-icon" style="filter: invert(1);"></span>
+                </button>
+            </div>
+
             <div class="collapse navbar-collapse" id="navbarProf">
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
                     <li class="nav-item"><a class="nav-link" href="everythingai.html">Generate AI Image</a></li>
                     <li class="nav-item"><a class="nav-link" href="#">Create your Dream Car</a></li>
                     <li class="nav-item"><a class="nav-link" href="3dmodel.html">Generate 3D Model</a></li>
+                    <li class="nav-item d-none d-lg-block">
+                        <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
+                            <i class="fas fa-moon" id="themeIcon"></i>
+                        </button>
+                    </li>
                 </ul>
-                <!-- Theme Toggle Button -->
-                <button class="theme-toggle" onclick="toggleTheme()" id="themeToggle">
-                    <i class="fas fa-moon" id="themeIcon"></i>
-                </button>
             </div>
         </div>
     </nav>
@@ -666,7 +1020,6 @@
         </div>
     </div>
 
-    <!-- COMPACT HERO (cyan theme) -->
     <div class="container">
         <div class="hero-compact">
             <div class="tagline">
@@ -681,7 +1034,6 @@
 
     <div class="main-container container">
 
-        <!-- Card 1: Dream Car input -->
         <div class="card-professional mb-4">
             <div class="section-title">
                 <span>1️⃣</span> Your Dream Car
@@ -698,14 +1050,12 @@
             </div>
         </div>
 
-        <!-- Card 2: Mistral AI recommendation -->
         <div class="card-professional mb-4">
             <div class="section-title">
                 <span>2️⃣</span> Recommendation
             </div>
             <div id="mistralResult" class="result-box">Click "Generate" to get recommendations...</div>
 
-            <!-- Car Showcase (hidden by default) -->
             <div id="mainCarShowcase" class="car-showcase" style="display: none;">
                 <div class="car-gallery">
                     <img id="mainCarImage" src="" alt="Dream car preview">
@@ -724,7 +1074,6 @@
                         <div class="match-percentage" id="matchPercentage">100% match</div>
                     </div>
                     
-                    <!-- Navigation Arrows -->
                     <div class="navigation-arrows" id="navigationArrows" style="display: none;">
                         <button class="arrow-btn" id="prevCarBtn" onclick="navigateCars('prev')">
                             <i class="fas fa-chevron-left"></i>
@@ -746,7 +1095,6 @@
             <div id="carList" style="display:none;"></div>
         </div>
 
-        <!-- Card 3: AI Horde -->
         <div class="card-professional mb-4">
             <div class="section-title">
                 <span>3️⃣</span> Generation <span class="tab-indicator">opens in new tab</span>
@@ -755,7 +1103,6 @@
             <div id="generatedImages" style="display:none;"></div>
         </div>
 
-        <!-- Card 4: Log / console -->
         <div class="card-professional">
             <div class="section-title"><span>📋</span> Activity log</div>
             <div id="testResults" class="result-box" style="max-height: 200px;">Ready...</div>
@@ -763,7 +1110,71 @@
         </div>
     </div>
 
-   <!-- FOOTER -->
+    <div class="gallery-modal" id="galleryModal">
+        <div class="gallery-modal-close" onclick="closeGalleryModal()">
+            <i class="fas fa-times"></i>
+        </div>
+        <div class="gallery-modal-content">
+            <img id="galleryModalImg" src="" alt="Gallery Image">
+            <div class="gallery-modal-info">
+                <div class="gallery-modal-title" id="galleryModalTitle"></div>
+                <div class="gallery-modal-date" id="galleryModalDate"></div>
+                <div class="gallery-modal-actions">
+                    <button class="gallery-modal-action-btn" onclick="exportSingleItem()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <label class="gallery-modal-action-btn">
+                        <i class="fas fa-upload"></i> Import
+                        <input type="file" accept=".json" onchange="importGallery(event)" style="display: none;">
+                    </label>
+                    <button class="gallery-modal-action-btn delete" onclick="deleteCurrentItem()">
+                        <i class="fas fa-trash-alt"></i> Delete
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <a href="#" class="floating-gallery-btn" id="floatingGalleryBtn" onclick="toggleGalleryDrawer()" style="text-decoration: none;">
+        <i class="fas fa-images"></i>
+        <span class="gallery-badge" id="galleryBadge">0</span>
+    </a>
+
+    <div class="gallery-drawer" id="galleryDrawer" onmousedown="handleDrawerMouseDown(event)">
+        <div class="gallery-drawer-header">
+            <span class="gallery-drawer-title">Gallery</span>
+            <div class="gallery-drawer-close" onclick="toggleGalleryDrawer(); event.stopPropagation();">
+                <i class="fas fa-times"></i>
+            </div>
+        </div>
+        <div class="gallery-drawer-grid" id="galleryDrawerGrid"></div>
+        
+        <div class="gallery-empty-import" id="galleryEmptyImport" style="display: none; text-align: center; margin-top: 20px;">
+            <label class="btn-outline-cyan" style="display: inline-flex; align-items: center; gap: 8px; padding: 12px 24px; cursor: pointer;">
+                <i class="fas fa-upload"></i> Import Gallery
+                <input type="file" accept=".json" onchange="importGallery(event)" style="display: none;">
+            </label>
+            <p style="color: var(--text-secondary); margin-top: 10px; font-size: 0.9rem;">Import previously exported gallery JSON file</p>
+        </div>
+    </div>
+
+    <div class="selection-toolbar" id="selectionToolbar">
+        <div class="selection-count" id="selectionCount">0 selected</div>
+        <button class="btn-outline-cyan" onclick="exportSelectedItems()">
+            <i class="fas fa-download"></i> Export
+        </button>
+        <label class="btn-outline-cyan" style="margin:0;">
+            <i class="fas fa-upload"></i> Import
+            <input type="file" accept=".json" onchange="importGallery(event)" style="display: none;">
+        </label>
+        <button class="btn-outline-cyan" onclick="deleteSelectedItems()">
+            <i class="fas fa-trash-alt"></i> Delete
+        </button>
+        <button class="btn-outline-cyan" onclick="cancelSelectionMode()">
+            <i class="fas fa-times"></i> Cancel
+        </button>
+    </div>
+
    <footer class="footer-modern">
     <div class="container">
         <div class="row gy-5">
@@ -802,45 +1213,393 @@
     </div>
 </footer>
 
-    <!-- BACK TO TOP -->
     <a href="#" class="back-to-top" id="backToTop"><i class="fas fa-arrow-up"></i></a>
 
     <script>
-        // ---------- LIGHT/DARK MODE TOGGLE ----------
         function toggleTheme() {
             const body = document.body;
             const themeIcon = document.getElementById('themeIcon');
+            const themeIconMobile = document.getElementById('themeIconMobile');
             
             if (body.getAttribute('data-theme') === 'dark') {
                 body.setAttribute('data-theme', 'light');
-                themeIcon.className = 'fas fa-sun';
+                if (themeIcon) themeIcon.className = 'fas fa-sun';
+                if (themeIconMobile) themeIconMobile.className = 'fas fa-sun';
                 localStorage.setItem('theme', 'light');
                 log('🌞 Light mode activated', 'info');
             } else {
                 body.setAttribute('data-theme', 'dark');
-                themeIcon.className = 'fas fa-moon';
+                if (themeIcon) themeIcon.className = 'fas fa-moon';
+                if (themeIconMobile) themeIconMobile.className = 'fas fa-moon';
                 localStorage.setItem('theme', 'dark');
                 log('🌙 Dark mode activated', 'info');
             }
         }
 
-        // Load saved theme preference
         const savedTheme = localStorage.getItem('theme') || 'dark';
         document.body.setAttribute('data-theme', savedTheme);
-        document.getElementById('themeIcon').className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        const themeIcon = document.getElementById('themeIcon');
+        const themeIconMobile = document.getElementById('themeIconMobile');
+        if (themeIcon) themeIcon.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
+        if (themeIconMobile) themeIconMobile.className = savedTheme === 'dark' ? 'fas fa-moon' : 'fas fa-sun';
 
-        // Configuration
         let currentCarData = null;
         let testCount = 0;
         let mainCar = null;
         let generatedImages = {};
         const API_BASE = 'https://hackathon-thkh.onrender.com';
+        const GALLERY_STORAGE_KEY = 'qptech_gallery';
+        let galleryItems = [];
+        let selectedItems = new Set();
+        let isSelectionMode = false;
+        let longPressTimer = null;
+        let currentItemId = null;
+
+        function loadGallery() {
+            try {
+                const saved = localStorage.getItem(GALLERY_STORAGE_KEY);
+                if (saved) {
+                    galleryItems = JSON.parse(saved);
+                } else {
+                    galleryItems = [];
+                }
+            } catch (error) {
+                console.error('Error loading gallery:', error);
+                galleryItems = [];
+            }
+            updateGalleryDrawer();
+        }
+
+        function saveGallery() {
+            try {
+                localStorage.setItem(GALLERY_STORAGE_KEY, JSON.stringify(galleryItems));
+                updateGalleryDrawer();
+                log(`💾 Gallery saved (${galleryItems.length} items)`, 'success');
+            } catch (error) {
+                console.error('Error saving gallery:', error);
+                log('❌ Failed to save gallery', 'error');
+            }
+        }
+
+        function addToGallery(imageUrl, title, metadata = {}) {
+            if (!imageUrl) {
+                log('❌ Cannot add to gallery: No image URL', 'error');
+                return false;
+            }
+            
+            const exists = galleryItems.some(item => item.url === imageUrl);
+            if (exists) {
+                log('⚠️ Image already in gallery', 'info');
+                return false;
+            }
+            
+            const galleryItem = {
+                id: Date.now() + '-' + Math.random().toString(36).substr(2, 9),
+                url: imageUrl,
+                title: title || 'Untitled',
+                date: new Date().toISOString(),
+                timestamp: Date.now(),
+                ...metadata
+            };
+            
+            galleryItems.unshift(galleryItem);
+            saveGallery();
+            log(`✨ Added to gallery: "${title || 'Untitled'}"`, 'success');
+            
+            return true;
+        }
+
+        function removeFromGallery(itemId) {
+            const index = galleryItems.findIndex(item => item.id === itemId);
+            if (index !== -1) {
+                const removed = galleryItems[index];
+                galleryItems.splice(index, 1);
+                
+                if (selectedItems.has(itemId)) {
+                    selectedItems.delete(itemId);
+                }
+                
+                saveGallery();
+                log(`🗑️ Removed from gallery: "${removed.title}"`, 'info');
+                return true;
+            }
+            return false;
+        }
+
+        function updateGalleryDrawer() {
+            const grid = document.getElementById('galleryDrawerGrid');
+            const badge = document.getElementById('galleryBadge');
+            const selectionToolbar = document.getElementById('selectionToolbar');
+            const emptyImport = document.getElementById('galleryEmptyImport');
+            
+            if (badge) {
+                badge.textContent = galleryItems.length;
+            }
+            
+            if (!grid) return;
+            
+            let html = '';
+            galleryItems.forEach(item => {
+                const selectedClass = selectedItems.has(item.id) ? 'selected' : '';
+                html += `
+                    <div class="gallery-drawer-item ${selectedClass}" data-id="${item.id}" 
+                        onmousedown="handleItemMouseDown(event, '${item.id}')"
+                        onclick="handleItemClick('${item.id}')">
+                        <img src="${item.url}" alt="${item.title}" loading="lazy">
+                    </div>
+                `;
+            });
+            
+            if (galleryItems.length === 0) {
+                html = '<div style="grid-column: span 2; text-align: center; color: var(--text-secondary); padding: 30px 20px;">No saved images</div>';
+                if (emptyImport) {
+                    emptyImport.style.display = 'block';
+                }
+                if (selectionToolbar) {
+                    selectionToolbar.classList.remove('active');
+                }
+                if (isSelectionMode) {
+                    isSelectionMode = false;
+                    selectedItems.clear();
+                }
+            } else {
+                if (emptyImport) {
+                    emptyImport.style.display = 'none';
+                }
+            }
+            
+            grid.innerHTML = html;
+        }
+
+        function handleDrawerMouseDown(event) {
+            if (galleryItems.length === 0) {
+                return;
+            }
+            
+            if (event.target.closest('.gallery-drawer-close')) {
+                if (longPressTimer) {
+                    clearTimeout(longPressTimer);
+                    longPressTimer = null;
+                }
+                return;
+            }
+            
+            if (event.button !== 0) return;
+            if (longPressTimer) clearTimeout(longPressTimer);
+            
+            longPressTimer = setTimeout(() => {
+                if (!isSelectionMode) {
+                    toggleSelectionMode();
+                }
+            }, 500);
+        }
+
+        function handleItemMouseDown(event, itemId) {
+            if (galleryItems.length === 0) {
+                return;
+            }
+            
+            event.stopPropagation();
+            if (event.button !== 0) return;
+            if (longPressTimer) clearTimeout(longPressTimer);
+            
+            longPressTimer = setTimeout(() => {
+                if (!isSelectionMode) {
+                    toggleSelectionMode();
+                    if (!selectedItems.has(itemId)) {
+                        toggleItemSelection(itemId);
+                    }
+                }
+            }, 500);
+        }
+
+        function handleItemClick(itemId) {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            
+            if (isSelectionMode) {
+                toggleItemSelection(itemId);
+            } else {
+                viewGalleryItem(itemId);
+            }
+        }
+
+        function toggleGalleryDrawer() {
+            const drawer = document.getElementById('galleryDrawer');
+            drawer.classList.toggle('open');
+        }
+
+        function viewGalleryItem(itemId) {
+            const item = galleryItems.find(i => i.id === itemId);
+            if (!item) return;
+            
+            currentItemId = itemId;
+            
+            const modalImg = document.getElementById('galleryModalImg');
+            const modalTitle = document.getElementById('galleryModalTitle');
+            const modalDate = document.getElementById('galleryModalDate');
+            
+            if (modalImg) modalImg.src = item.url;
+            if (modalTitle) modalTitle.textContent = item.title;
+            if (modalDate) modalDate.textContent = `Generated: ${new Date(item.date).toLocaleString()}`;
+            
+            document.getElementById('galleryModal').classList.add('active');
+            
+            const drawer = document.getElementById('galleryDrawer');
+            if (drawer.classList.contains('open')) {
+                drawer.classList.remove('open');
+            }
+        }
+
+        function closeGalleryModal() {
+            const modal = document.getElementById('galleryModal');
+            if (modal) modal.classList.remove('active');
+            currentItemId = null;
+        }
+
+        function deleteCurrentItem() {
+            if (currentItemId) {
+                if (confirm('Delete this image from gallery?')) {
+                    removeFromGallery(currentItemId);
+                    closeGalleryModal();
+                }
+            }
+        }
+
+        function exportSingleItem() {
+            if (!currentItemId) return;
+            const item = galleryItems.find(i => i.id === currentItemId);
+            if (!item) return;
+            
+            const dataStr = JSON.stringify([item], null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = `qptech-${item.title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}-${new Date().toISOString().slice(0,10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            log(`📤 Exported: "${item.title}"`, 'success');
+        }
+
+        function exportSelectedItems() {
+            if (selectedItems.size === 0) {
+                alert('No items selected');
+                return;
+            }
+            
+            const itemsToExport = galleryItems.filter(item => selectedItems.has(item.id));
+            const dataStr = JSON.stringify(itemsToExport, null, 2);
+            const dataUri = 'data:application/json;charset=utf-8,'+ encodeURIComponent(dataStr);
+            const exportFileDefaultName = `qptech-gallery-selected-${new Date().toISOString().slice(0,10)}.json`;
+            
+            const linkElement = document.createElement('a');
+            linkElement.setAttribute('href', dataUri);
+            linkElement.setAttribute('download', exportFileDefaultName);
+            linkElement.click();
+            
+            log(`📤 Exported ${selectedItems.size} item${selectedItems.size !== 1 ? 's' : ''}`, 'success');
+        }
+
+        function importGallery(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const imported = JSON.parse(e.target.result);
+                    if (Array.isArray(imported)) {
+                        const newItems = imported.filter(imp => 
+                            !galleryItems.some(ex => ex.url === imp.url)
+                        );
+                        
+                        galleryItems = [...newItems, ...galleryItems];
+                        saveGallery();
+                        log(`📥 Imported ${newItems.length} new items`, 'success');
+                    }
+                } catch (error) {
+                    log('❌ Failed to import gallery', 'error');
+                }
+            };
+            reader.readAsText(file);
+            event.target.value = '';
+        }
+
+        function cancelSelectionMode() {
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            isSelectionMode = false;
+            selectedItems.clear();
+            const toolbar = document.getElementById('selectionToolbar');
+            if (toolbar) toolbar.classList.remove('active');
+            updateGalleryDrawer();
+        }
+
+        function toggleSelectionMode() {
+            if (galleryItems.length === 0) {
+                return;
+            }
+            
+            if (longPressTimer) {
+                clearTimeout(longPressTimer);
+                longPressTimer = null;
+            }
+            isSelectionMode = !isSelectionMode;
+            const toolbar = document.getElementById('selectionToolbar');
+            
+            if (isSelectionMode) {
+                if (toolbar) toolbar.classList.add('active');
+            } else {
+                if (toolbar) toolbar.classList.remove('active');
+                selectedItems.clear();
+            }
+            
+            updateGalleryDrawer();
+            updateSelectionDisplay();
+        }
+
+        function toggleItemSelection(itemId) {
+            if (selectedItems.has(itemId)) {
+                selectedItems.delete(itemId);
+            } else {
+                selectedItems.add(itemId);
+            }
+            
+            updateSelectionDisplay();
+            updateGalleryDrawer();
+        }
+
+        function updateSelectionDisplay() {
+            const count = selectedItems.size;
+            const countEl = document.getElementById('selectionCount');
+            if (countEl) {
+                countEl.textContent = `${count} selected`;
+            }
+        }
+
+        function deleteSelectedItems() {
+            if (selectedItems.size === 0) return;
+            
+            if (confirm(`Delete ${selectedItems.size} selected item${selectedItems.size !== 1 ? 's' : ''}?`)) {
+                selectedItems.forEach(id => {
+                    removeFromGallery(id);
+                });
+                selectedItems.clear();
+                cancelSelectionMode();
+                log(`🗑️ Deleted ${selectedItems.size} items`, 'info');
+            }
+        }
 
         function getApiBaseUrl() {
             return API_BASE;
         }
 
-        // Test backend connection
         async function testBackendConnection() {
             const apiBase = getApiBaseUrl();
             const statusEl = document.getElementById('apiStatus');
@@ -954,7 +1713,6 @@
                     document.getElementById('mistralResult').innerHTML = `✅ Generated ${currentCarData.cars.length} cars successfully`;
                     log(`✅ Generated ${currentCarData.cars.length} cars, main car: ${mainCar.make} ${mainCar.model}`, 'success');
                     
-                    // Return true to indicate success with mainCar set
                     return true;
                 } else {
                     throw new Error('No cars in response');
@@ -1177,6 +1935,45 @@
                     font-size: 1.1rem; transition: all 0.25s ease; cursor: pointer;
                 }
                 .btn-primary-cyan:hover { background: #5efff7; transform: translateY(-4px); }
+                .action-btn.gallery-btn {
+                    background: transparent;
+                    border: 1px solid #00fff7;
+                    color: #00fff7;
+                    padding: 8px 20px;
+                    border-radius: 40px;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    transition: 0.2s;
+                }
+                .action-btn.gallery-btn:hover {
+                    background: rgba(0,255,247,0.1);
+                    color: #fff;
+                }
+                .action-btn {
+                    background: #00fff7;
+                    color: #000;
+                    padding: 8px 20px;
+                    border-radius: 40px;
+                    font-weight: 600;
+                    font-size: 0.95rem;
+                    text-decoration: none;
+                    transition: 0.2s;
+                    border: none;
+                    cursor: pointer;
+                    display: inline-flex;
+                    align-items: center;
+                    gap: 8px;
+                    white-space: nowrap;
+                }
+                .action-btn:hover { 
+                    background: #6efff7; 
+                    transform: translateY(-2px); 
+                    box-shadow: 0 5px 15px rgba(0,255,247,0.3);
+                }
             </style>
         </head>
         <body>
@@ -1221,7 +2018,7 @@
                     <span class="loader" id="loader" style="display: none;"></span>
                     <div id="status">Ready to generate images</div>
                 </div>
-                <div id="downloadContainer" style="margin-left: auto;"></div>
+                <div id="downloadContainer" style="margin-left: auto; display: flex; gap: 10px;"></div>
             </div>
 
         <script>
@@ -1233,19 +2030,16 @@
         let generatedImages = ${storedImagesJSON};
         let isGenerating = false;
 
-        // Initialize display and auto-generate
         function initializeDisplay() {
             updateCarDisplay();
             updateNavigationButtons();
             
-            // Auto-generate for current car if no image exists
             const currentCar = CARS[currentIndex];
             if (!generatedImages[currentCar.key]) {
                 setTimeout(() => generateCurrentImage(), 500);
             }
         }
 
-        // Navigation function
         function navigateCars(direction) {
             if (isGenerating) {
                 alert('Please wait for current image generation to complete.');
@@ -1260,14 +2054,12 @@
             updateCarDisplay();
             updateNavigationButtons();
             
-            // Auto-generate for new car if no image exists
             const currentCar = CARS[currentIndex];
             if (!generatedImages[currentCar.key]) {
                 setTimeout(() => generateCurrentImage(), 500);
             }
         }
 
-        // Update car display
         function updateCarDisplay() {
             const car = CARS[currentIndex];
             document.getElementById('carMakeModel').innerText = car.make + ' ' + car.model;
@@ -1286,7 +2078,8 @@
                 document.getElementById('status').innerHTML = '✅ Image already generated';
                 document.getElementById('loader').style.display = 'none';
                 
-                document.getElementById('downloadContainer').innerHTML = '<a href="' + generatedImages[car.key] + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in new tab</a>';
+                document.getElementById('downloadContainer').innerHTML = '<a href="' + generatedImages[car.key] + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in new tab</a>' +
+                    '<button class="action-btn gallery-btn" onclick="saveToGallery()"><i class="fas fa-save"></i> Save</button>';
             } else {
                 document.getElementById('carImage').src = 'https://source.unsplash.com/800x600/?' + car.make + ',' + car.model + ',concept-car&' + Date.now();
                 document.getElementById('generateImageBtn').innerHTML = '🎨 Generate Image';
@@ -1297,13 +2090,31 @@
             }
         }
 
-        // Update navigation buttons
+        function saveToGallery() {
+            const car = CARS[currentIndex];
+            const imgUrl = document.getElementById('carImage').src;
+            const title = car.make + ' ' + car.model;
+            
+            if (imgUrl.includes('source.unsplash.com') || imgUrl.includes('placeholder')) {
+                alert('Please wait for the AI image to generate first.');
+                return;
+            }
+            
+            if (window.opener && window.opener.addToGallery) {
+                window.opener.addToGallery(imgUrl, title, { car: true, make: car.make, model: car.model });
+                alert('✅ Saved to gallery!');
+            } else {
+                navigator.clipboard.writeText(imgUrl).then(() => {
+                    alert('Image URL copied to clipboard (parent window not available)');
+                });
+            }
+        }
+
         function updateNavigationButtons() {
             document.getElementById('prevCarBtn').disabled = currentIndex === 0;
             document.getElementById('nextCarBtn').disabled = currentIndex === CARS.length - 1;
         }
 
-        // Generate image for current car
         async function generateCurrentImage() {
             if (isGenerating) return;
             
@@ -1356,7 +2167,8 @@
                             generateBtn.disabled = false;
                             isGenerating = false;
                             
-                            downloadContainer.innerHTML = '<a href="' + imgUrl + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in new tab</a>';
+                            downloadContainer.innerHTML = '<a href="' + imgUrl + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in new tab</a>' +
+                                '<button class="action-btn gallery-btn" onclick="saveToGallery()"><i class="fas fa-save"></i> Save</button>';
                             
                             if (window.opener) {
                                 window.opener.postMessage({
@@ -1398,7 +2210,6 @@
             }
         }
 
-        // Initialize on load
         initializeDisplay();
         <\/script>
         </body>
@@ -1414,7 +2225,6 @@
             log('🚀 Starting full workflow', 'info');
             const success = await generateCarRecommendation();
             if (success && mainCar) {
-                // Automatically open the generation tab after getting recommendations
                 setTimeout(() => {
                     generateImageForMainCar();
                     log('🔄 Automatically opening image generation tab for main car', 'info');
@@ -1439,6 +2249,7 @@
         });
 
         window.onload = function() {
+            loadGallery();
             testBackendConnection();
             log('✅ Dream Car Generator ready!', 'success');
         };
