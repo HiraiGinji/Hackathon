@@ -671,7 +671,7 @@
         <div class="hero-compact">
             <div class="tagline">
                 <span class="badge-cyan"><i class="fas fa-car me-1"></i> Dream Car Generator</span>
-                <p class="mb-0">Mistral + Horde · free</p>
+                <p class="mb-0"></p>
             </div>
             <div class="flex-center">
                 <span class="api-status disconnected" id="apiStatus">🔴 Backend: Disconnected</span>
@@ -680,17 +680,6 @@
     </div>
 
     <div class="main-container container">
-        <!-- API selector row -->
-        <div class="d-flex flex-wrap justify-content-end align-items-center mb-3 gap-3">
-            <div class="d-flex flex-wrap gap-3 align-items-center">
-                <span style="color: var(--text-secondary); font-size:0.9rem;">API:</span>
-                <select id="apiBaseSelect" class="form-select" style="width: auto; background: var(--input-bg); border: 1.5px solid var(--border-cyan-dim); color: var(--text-primary); border-radius: 60px; padding: 6px 28px 6px 16px; font-size:0.9rem;">
-                    <option value="http://localhost:3000">Local Node.js</option>
-                    <option value="https://hackathon-thkh.onrender.com" selected>Render Node.js</option>
-                </select>
-                <button class="btn-outline-cyan" style="padding:6px 20px;" onclick="testBackendConnection()">Test</button>
-            </div>
-        </div>
 
         <!-- Card 1: Dream Car input -->
         <div class="card-professional mb-4">
@@ -712,7 +701,7 @@
         <!-- Card 2: Mistral AI recommendation -->
         <div class="card-professional mb-4">
             <div class="section-title">
-                <span>2️⃣</span> Mistral AI recommendation
+                <span>2️⃣</span> Recommendation
             </div>
             <div id="mistralResult" class="result-box">Click "Generate" to get recommendations...</div>
 
@@ -760,7 +749,7 @@
         <!-- Card 3: AI Horde -->
         <div class="card-professional mb-4">
             <div class="section-title">
-                <span>3️⃣</span> AI Horde <span class="tab-indicator">opens in new tab</span>
+                <span>3️⃣</span> Generation <span class="tab-indicator">opens in new tab</span>
             </div>
             <div id="hordeResult" class="result-box">Image generation will open in a new tab for the main car only.</div>
             <div id="generatedImages" style="display:none;"></div>
@@ -797,7 +786,7 @@
                     <ul class="list-unstyled">
                         <li class="mb-2"><a href="everythingai.html">AI image generator</a></li>
                         <li class="mb-2"><a href="car.html">Dream car finder</a></li>
-                        <li class="mb-2"><a href="3dmodel.html">#3D Modeling</a></li>
+                        <li class="mb-2"><a href="3dmodel.html">3D Modeling</a></li>
                     </ul>
                 </div>
             </div>
@@ -845,17 +834,10 @@
         let testCount = 0;
         let mainCar = null;
         let generatedImages = {};
-        let selectedApiBase = 'https://hackathon-thkh.onrender.com';
-
-        function updateApiBase() {
-            const select = document.getElementById('apiBaseSelect');
-            selectedApiBase = select.value;
-            log(`🔧 API Base changed to: ${selectedApiBase}`, 'info');
-            testBackendConnection();
-        }
+        const API_BASE = 'https://hackathon-thkh.onrender.com';
 
         function getApiBaseUrl() {
-            return selectedApiBase;
+            return API_BASE;
         }
 
         // Test backend connection
@@ -927,8 +909,8 @@
             const sanitizedPrompt = sanitizeInput(prompt);
             
             document.getElementById('orLoading').style.display = 'inline-block';
-            document.getElementById('mistralResult').innerHTML = 'Generating with Mistral AI...';
-            log(`🎯 Generating with Mistral: "${sanitizedPrompt.substring(0,50)}..."`);
+            document.getElementById('mistralResult').innerHTML = 'Generating with AI...';
+            log(`🎯 Generating with AI: "${sanitizedPrompt.substring(0,50)}..."`);
             
             try {
                 const response = await fetch(`${apiBase}/api/generate-car-recommendations`, {
@@ -968,15 +950,12 @@
                 
                 if (currentCarData.cars && currentCarData.cars.length > 0) {
                     mainCar = currentCarData.cars[0];
-                    displayMainCar(mainCar, 0, currentCarData.cars);
+                    displayMainCar(mainCar);
                     document.getElementById('mistralResult').innerHTML = `✅ Generated ${currentCarData.cars.length} cars successfully`;
                     log(`✅ Generated ${currentCarData.cars.length} cars, main car: ${mainCar.make} ${mainCar.model}`, 'success');
                     
-                    // Show navigation arrows if multiple cars
-                    if (currentCarData.cars.length > 1) {
-                        document.getElementById('navigationArrows').style.display = 'flex';
-                        document.getElementById('totalCars').innerText = currentCarData.cars.length;
-                    }
+                    // Return true to indicate success with mainCar set
+                    return true;
                 } else {
                     throw new Error('No cars in response');
                 }
@@ -985,6 +964,7 @@
                 document.getElementById('mistralResult').innerHTML = `❌ Error: ${error.message}`;
                 log(`❌ ${error.message}`, 'error');
                 console.error('API error:', error);
+                return false;
             } finally {
                 document.getElementById('orLoading').style.display = 'none';
             }
@@ -1043,7 +1023,7 @@
             }
             openAITabWithFullSpecs(mainCar);
             document.getElementById('hordeResult').innerHTML = `✅ New tab opened for main car: ${mainCar.make} ${mainCar.model}\n⏱️ ${new Date().toLocaleTimeString()}`;
-            log(`🎨 Opened AI Horde tab for main car: ${mainCar.make} ${mainCar.model}`, 'success');
+            log(`🎨 Opened new tab for main car: ${mainCar.make} ${mainCar.model}`, 'success');
         }
 
         function openAITabWithFullSpecs(car) {
@@ -1181,7 +1161,8 @@
                 .status-bar {
                     background: rgba(8,8,16,0.8); backdrop-filter: blur(15px);
                     border-radius: 60px; padding: 15px 25px; border-left: 6px solid #00fff7;
-                    display: flex; align-items: center; gap: 15px;
+                    display: flex; align-items: center; justify-content: space-between;
+                    gap: 15px;
                 }
                 .loader { border: 3px solid rgba(255,255,255,0.1); border-top: 3px solid #00fff7; width: 30px; height: 30px; border-radius: 50%; animation: spin 1s linear infinite; }
                 @keyframes spin { 0% { transform: rotate(0); } 100% { transform: rotate(360deg); } }
@@ -1230,17 +1211,18 @@
                     </div>
 
                     <button class="btn-primary-cyan" style="width:100%; margin-top:20px;" id="generateImageBtn" onclick="generateCurrentImage()">
-                        🎨 Generate Image
+                        Generating...
                     </button>
                 </div>
             </div>
 
             <div class="status-bar">
-                <span class="loader" id="loader" style="display: none;"></span>
-                <div id="status">Ready to generate images</div>
-                <div id="downloadContainer"></div>
+                <div style="display: flex; align-items: center; gap: 15px; flex: 1;">
+                    <span class="loader" id="loader" style="display: none;"></span>
+                    <div id="status">Ready to generate images</div>
+                </div>
+                <div id="downloadContainer" style="margin-left: auto;"></div>
             </div>
-        </div>
 
         <script>
         const API_BASE = "${apiBase}";
@@ -1251,6 +1233,41 @@
         let generatedImages = ${storedImagesJSON};
         let isGenerating = false;
 
+        // Initialize display and auto-generate
+        function initializeDisplay() {
+            updateCarDisplay();
+            updateNavigationButtons();
+            
+            // Auto-generate for current car if no image exists
+            const currentCar = CARS[currentIndex];
+            if (!generatedImages[currentCar.key]) {
+                setTimeout(() => generateCurrentImage(), 500);
+            }
+        }
+
+        // Navigation function
+        function navigateCars(direction) {
+            if (isGenerating) {
+                alert('Please wait for current image generation to complete.');
+                return;
+            }
+            
+            if (direction === 'prev' && currentIndex > 0) {
+                currentIndex--;
+            } else if (direction === 'next' && currentIndex < CARS.length - 1) {
+                currentIndex++;
+            }
+            updateCarDisplay();
+            updateNavigationButtons();
+            
+            // Auto-generate for new car if no image exists
+            const currentCar = CARS[currentIndex];
+            if (!generatedImages[currentCar.key]) {
+                setTimeout(() => generateCurrentImage(), 500);
+            }
+        }
+
+        // Update car display
         function updateCarDisplay() {
             const car = CARS[currentIndex];
             document.getElementById('carMakeModel').innerText = car.make + ' ' + car.model;
@@ -1265,33 +1282,29 @@
             if (generatedImages[car.key]) {
                 document.getElementById('carImage').src = generatedImages[car.key];
                 document.getElementById('generateImageBtn').innerHTML = '🔄 Regenerate Image';
+                document.getElementById('generateImageBtn').disabled = false;
                 document.getElementById('status').innerHTML = '✅ Image already generated';
-                document.getElementById('downloadContainer').innerHTML = '<a href="' + generatedImages[car.key] + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open</a>';
+                document.getElementById('loader').style.display = 'none';
+                
+                document.getElementById('downloadContainer').innerHTML = '<a href="' + generatedImages[car.key] + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in new tab</a>';
             } else {
                 document.getElementById('carImage').src = 'https://source.unsplash.com/800x600/?' + car.make + ',' + car.model + ',concept-car&' + Date.now();
                 document.getElementById('generateImageBtn').innerHTML = '🎨 Generate Image';
+                document.getElementById('generateImageBtn').disabled = false;
+                document.getElementById('status').innerHTML = 'No image generated yet';
                 document.getElementById('downloadContainer').innerHTML = '';
+                document.getElementById('loader').style.display = 'none';
             }
-            
+        }
+
+        // Update navigation buttons
+        function updateNavigationButtons() {
             document.getElementById('prevCarBtn').disabled = currentIndex === 0;
             document.getElementById('nextCarBtn').disabled = currentIndex === CARS.length - 1;
         }
 
-        window.navigateCars = function(direction) {
-            if (isGenerating) {
-                alert('Please wait for current image generation to complete.');
-                return;
-            }
-            
-            if (direction === 'prev' && currentIndex > 0) {
-                currentIndex--;
-            } else if (direction === 'next' && currentIndex < CARS.length - 1) {
-                currentIndex++;
-            }
-            updateCarDisplay();
-        };
-
-        window.generateCurrentImage = async function() {
+        // Generate image for current car
+        async function generateCurrentImage() {
             if (isGenerating) return;
             
             const car = CARS[currentIndex];
@@ -1303,7 +1316,7 @@
             
             isGenerating = true;
             loader.style.display = 'inline-block';
-            s.innerHTML = 'Starting AI image generation...';
+            s.innerHTML = 'Starting AI image generation for ' + car.make + ' ' + car.model + '...';
             generateBtn.disabled = true;
             generateBtn.innerHTML = '⏳ Generating...';
             
@@ -1316,7 +1329,10 @@
                     })
                 });
                 
-                if (!r.ok) throw new Error('Submission failed');
+                if (!r.ok) {
+                    const errorText = await r.text();
+                    throw new Error('Submission failed: ' + errorText);
+                }
                 const d = await r.json();
                 const id = d.id;
                 s.innerHTML = 'Job ' + id + ' waiting in queue...';
@@ -1333,11 +1349,14 @@
                             loader.style.display = 'none';
                             s.innerHTML = '✅ Image generated successfully!';
                             carImage.src = imgUrl;
+                            
                             generatedImages[car.key] = imgUrl;
+                            
                             generateBtn.innerHTML = '🔄 Regenerate Image';
                             generateBtn.disabled = false;
                             isGenerating = false;
-                            downloadContainer.innerHTML = '<a href="' + imgUrl + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open</a>';
+                            
+                            downloadContainer.innerHTML = '<a href="' + imgUrl + '" target="_blank" class="download-btn"><i class="fas fa-external-link-alt"></i> Open in new tab</a>';
                             
                             if (window.opener) {
                                 window.opener.postMessage({
@@ -1349,32 +1368,38 @@
                         } else if (st.faulted) {
                             clearInterval(poll);
                             loader.style.display = 'none';
-                            s.innerHTML = '❌ Generation failed';
+                            s.innerHTML = '❌ Generation failed: ' + (st.message || 'Unknown error');
                             generateBtn.innerHTML = '🎨 Generate Image';
                             generateBtn.disabled = false;
                             isGenerating = false;
                         } else if (attempts++ > 40) {
                             clearInterval(poll);
                             loader.style.display = 'none';
-                            s.innerHTML = '⚠️ Timeout';
+                            s.innerHTML = '⚠️ Timeout — generation took too long.';
                             generateBtn.innerHTML = '🎨 Generate Image';
                             generateBtn.disabled = false;
                             isGenerating = false;
                         } else {
-                            s.innerHTML = '⏳ Queue: ' + (st.queue_position || '...');
+                            const queuePos = st.queue_position || '?';
+                            const waitTime = st.wait_time || '?';
+                            s.innerHTML = '⏳ Queue: ' + queuePos + ' | Wait time: ' + waitTime + 's';
                         }
-                    } catch (e) {}
+                    } catch (e) {
+                        console.error('Poll error:', e);
+                    }
                 }, 4000);
             } catch (e) {
                 loader.style.display = 'none';
                 s.innerHTML = '❌ Error: ' + e.message;
+                console.error('Generation error:', e);
                 generateBtn.innerHTML = '🎨 Generate Image';
                 generateBtn.disabled = false;
                 isGenerating = false;
             }
-        };
+        }
 
-        updateCarDisplay();
+        // Initialize on load
+        initializeDisplay();
         <\/script>
         </body>
         </html>`;
@@ -1386,8 +1411,15 @@
 
         async function runFullWorkflow() {
             testCount++;
-            log('🚀 Starting full workflow with Mistral AI', 'info');
-            await generateCarRecommendation();
+            log('🚀 Starting full workflow', 'info');
+            const success = await generateCarRecommendation();
+            if (success && mainCar) {
+                // Automatically open the generation tab after getting recommendations
+                setTimeout(() => {
+                    generateImageForMainCar();
+                    log('🔄 Automatically opening image generation tab for main car', 'info');
+                }, 1500);
+            }
         }
 
         window.addEventListener('message', function(event) {
@@ -1407,8 +1439,6 @@
         });
 
         window.onload = function() {
-            document.getElementById('apiBaseSelect').value = 'https://hackathon-thkh.onrender.com';
-            selectedApiBase = 'https://hackathon-thkh.onrender.com';
             testBackendConnection();
             log('✅ Dream Car Generator ready!', 'success');
         };
