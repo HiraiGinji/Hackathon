@@ -872,7 +872,7 @@
             </div>
             <div class="flex-center">
                 <span class="api-status disconnected" id="apiStatus">🔴 Backend: Disconnected</span>
-                <span class="api-status disconnected" id="tripoStatus" style="margin-left: 10px;">🔴 Tripo3D: Disconnected</span>
+                <span class="api-status disconnected" id="tripoStatus" style="margin-left: 10px;">🔴 3D Generator: Disconnected</span>
             </div>
         </div>
     </div>
@@ -1086,7 +1086,7 @@
                         <ul class="list-unstyled">
                             <li class="mb-2"><a href="everythingai.html">AI image generator</a></li>
                             <li class="mb-2"><a href="car.html">Dream car finder</a></li>
-                            <li class="mb-2"><a href="3dmodel.html">#3D Modeling</a></li>
+                            <li class="mb-2"><a href="3dmodel.html">3D Modeling</a></li>
                         </ul>
                     </div>
                 </div>
@@ -1532,7 +1532,7 @@
                 const data = await response.json();
                 
                 if (data.success) {
-                    tripoStatus.innerHTML = '🟢 Tripo3D: Connected';
+                    tripoStatus.innerHTML = '🟢 3D Generator: Connected';
                     tripoStatus.className = 'api-status connected';
                     balanceDisplay.innerHTML = `${data.data.balance}`;
                     log(`💰 Balance: ${data.data.balance} credits`, 'success');
@@ -1540,7 +1540,7 @@
                     throw new Error(data.error);
                 }
             } catch (error) {
-                tripoStatus.innerHTML = '🔴 Tripo3D: Disconnected';
+                tripoStatus.innerHTML = '🔴 3D Generator: Disconnected';
                 tripoStatus.className = 'api-status disconnected';
                 balanceDisplay.innerHTML = '--';
                 log(`❌ Balance check failed: ${error.message}`, 'error');
