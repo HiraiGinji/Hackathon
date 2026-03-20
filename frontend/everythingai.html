@@ -843,6 +843,21 @@
             gap: 10px;
         }
 
+        .pulse-animation {
+            animation: pulse 1.5s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+            50% {
+                opacity: 0.8;
+                transform: scale(1.05);
+            }
+        }
+
         @media (max-width: 768px) {
             body {
                 padding: 0 10px;
@@ -1036,8 +1051,11 @@
                 <div class="gallery-modal-title" id="galleryModalTitle"></div>
                 <div class="gallery-modal-date" id="galleryModalDate"></div>
                 <div class="gallery-modal-actions">
+                    <button class="gallery-modal-action-btn" onclick="downloadModalAsPNG()">
+                        <i class="fas fa-file-image"></i> Download PNG
+                    </button>
                     <button class="gallery-modal-action-btn" onclick="exportSingleItem()">
-                        <i class="fas fa-download"></i> Export
+                        <i class="fas fa-download"></i> Export JSON
                     </button>
                     <label class="gallery-modal-action-btn">
                         <i class="fas fa-upload"></i> Import
@@ -1078,6 +1096,9 @@
         <div class="selection-count" id="selectionCount">0 selected</div>
         <button class="btn-outline-cyan" onclick="exportSelectedItems()">
             <i class="fas fa-download"></i> Export
+        </button>
+        <button class="btn-outline-cyan" onclick="downloadSelectedAsPNG()">
+            <i class="fas fa-file-image"></i> Download PNG
         </button>
         <label class="btn-outline-cyan" style="margin:0;">
             <i class="fas fa-upload"></i> Import
@@ -1169,6 +1190,79 @@
     let isSelectionMode = false;
     let longPressTimer = null;
     let currentItemId = null;
+
+    // Helper function to convert image URL to PNG and download
+    async function convertAndDownloadPNG(imageUrl, title) {
+        return new Promise((resolve, reject) => {
+            const img = new Image();
+            img.crossOrigin = 'Anonymous';
+            
+            img.onload = () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = img.width;
+                canvas.height = img.height;
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0);
+                
+                canvas.toBlob((blob) => {
+                    const downloadUrl = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = downloadUrl;
+                    a.download = `${title.replace(/[^a-z0-9]/gi, '_').toLowerCase()}.png`;
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    URL.revokeObjectURL(downloadUrl);
+                    resolve();
+                }, 'image/png');
+            };
+            
+            img.onerror = () => {
+                reject(new Error('Failed to load image'));
+            };
+            
+            img.src = imageUrl;
+        });
+    }
+
+    // Download selected items as PNG
+    async function downloadSelectedAsPNG() {
+        if (selectedItems.size === 0) {
+            alert('No items selected');
+            return;
+        }
+        
+        const itemsToDownload = galleryItems.filter(item => selectedItems.has(item.id));
+        
+        for (const item of itemsToDownload) {
+            try {
+                await convertAndDownloadPNG(item.url, item.title);
+                log(`📸 Downloaded PNG: "${item.title}"`, 'success');
+                // Add small delay between downloads
+                await new Promise(resolve => setTimeout(resolve, 500));
+            } catch (error) {
+                log(`❌ Failed to download PNG for "${item.title}": ${error.message}`, 'error');
+            }
+        }
+        
+        alert(`Downloaded ${itemsToDownload.length} PNG file(s)`);
+    }
+
+    // Download current modal image as PNG
+    async function downloadModalAsPNG() {
+        if (!currentItemId) return;
+        const item = galleryItems.find(i => i.id === currentItemId);
+        if (!item) return;
+        
+        try {
+            await convertAndDownloadPNG(item.url, item.title);
+            log(`📸 Downloaded PNG from modal: "${item.title}"`, 'success');
+            alert(`✅ PNG downloaded: ${item.title}.png`);
+        } catch (error) {
+            log(`❌ Failed to download PNG: ${error.message}`, 'error');
+            alert('Failed to download PNG. Please try right-clicking the image and selecting "Save image as..."');
+        }
+    }
 
     function loadGallery() {
         try {
@@ -1768,6 +1862,7 @@
                     display: flex;
                     align-items: center;
                     justify-content: center;
+                    position: relative;
                 }
                 .image-gallery img {
                     width: 100%; height: 100%; object-fit: contain;
@@ -1922,6 +2017,15 @@
                     background: rgba(0,255,247,0.1);
                     color: #fff;
                 }
+                .action-btn.png-btn {
+                    background: #ff6b6b;
+                    color: #fff;
+                    border: none;
+                }
+                .action-btn.png-btn:hover {
+                    background: #ff5252;
+                    transform: translateY(-2px);
+                }
                 @media (max-width: 600px) {
                     .status-bar {
                         flex-direction: column;
@@ -1940,7 +2044,7 @@
         <div class="container">
             <div class="image-showcase">
                 <div class="image-gallery">
-                    <img id="mainImage" src="https://source.unsplash.com/800x600/?${encodeURIComponent(safeTitle.split(' ').slice(0,3).join(','))}&${Date.now()}" alt="${safeTitle}">
+                    <img id="mainImage" src="https://source.unsplash.com/800x600/?${encodeURIComponent(safeTitle.split(' ').slice(0,3).join(','))}&${Date.now()}" alt="${safeTitle}" crossorigin="anonymous">
                 </div>
                 <div class="image-info">
                     <h1 class="image-title">${safeTitle}</h1>
@@ -1986,6 +2090,9 @@
                         <button class="action-btn gallery-btn" id="saveGalleryBtn" style="display:none;" onclick="saveToGallery()">
                             <i class="fas fa-save"></i> Save to Gallery
                         </button>
+                        <button class="action-btn png-btn" id="pngConvertBtn" style="display:none;" onclick="convertToPNG()">
+                            <i class="fas fa-file-image"></i> Download as PNG
+                        </button>
                     </div>
                 </div>
             </div>
@@ -1995,11 +2102,63 @@
             let currentPrompt = "${safePrompt.replace(/"/g, '\\"').replace(/'/g, "\\'")}";
             let generatedImages = {};
             let isGenerating = false;
+            let currentImageUrl = null;
+
+            async function convertToPNG() {
+                const img = document.getElementById('mainImage');
+                const url = img.src;
+                const title = "${safeTitle}";
+                
+                if (!url || url.includes('source.unsplash.com') || url.includes('placeholder')) {
+                    alert('Please wait for the AI image to generate first.');
+                    return;
+                }
+                
+                const btn = document.getElementById('pngConvertBtn');
+                const originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Converting...';
+                btn.disabled = true;
+                
+                try {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+                    const tempImg = new Image();
+                    tempImg.crossOrigin = 'Anonymous';
+                    
+                    await new Promise((resolve, reject) => {
+                        tempImg.onload = resolve;
+                        tempImg.onerror = reject;
+                        tempImg.src = url;
+                    });
+                    
+                    canvas.width = tempImg.width;
+                    canvas.height = tempImg.height;
+                    ctx.drawImage(tempImg, 0, 0);
+                    
+                    canvas.toBlob((blob) => {
+                        const downloadUrl = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = downloadUrl;
+                        a.download = title.replace(/[^a-z0-9]/gi, '_').toLowerCase() + '.png';
+                        document.body.appendChild(a);
+                        a.click();
+                        document.body.removeChild(a);
+                        URL.revokeObjectURL(downloadUrl);
+                        alert('✅ PNG conversion successful! Image downloaded as PNG.');
+                    }, 'image/png');
+                    
+                } catch (error) {
+                    console.error('PNG conversion error:', error);
+                    alert('❌ PNG conversion failed: ' + error.message + '\\n\\nTry right-clicking the image and selecting "Save image as..." instead.');
+                } finally {
+                    btn.innerHTML = originalText;
+                    btn.disabled = false;
+                }
+            }
 
             window.downloadImage = function() {
                 const img = document.getElementById('mainImage');
                 const url = img.src;
-                const title = "${safeTitle.replace(/[^a-z0-9]/gi, '_').toLowerCase()}";
                 
                 if (url.includes('source.unsplash.com') || url.includes('placeholder')) {
                     alert('Please wait for the AI image to generate first.');
@@ -2010,7 +2169,7 @@
                 a.href = url;
                 a.target = "_blank";
                 a.rel = "noopener";
-                a.download = 'ai-image.jpg';
+                a.download = 'ai-image.webp';
                 document.body.appendChild(a);
                 a.click();
                 a.remove();
@@ -2041,11 +2200,13 @@
                 });
                 if(generatedImages[decoded]) {
                     document.getElementById('mainImage').src = generatedImages[decoded];
+                    currentImageUrl = generatedImages[decoded];
                     document.getElementById('status').innerHTML = '✅ Image already generated';
                     document.getElementById('loader').style.display = 'none';
                     document.getElementById('regenerateBtn').style.display = 'inline-flex';
                     document.getElementById('downloadBtn').style.display = 'inline-flex';
                     document.getElementById('saveGalleryBtn').style.display = 'inline-flex';
+                    document.getElementById('pngConvertBtn').style.display = 'inline-flex';
                 } else { 
                     regenerateWithPrompt(decoded); 
                 }
@@ -2062,6 +2223,7 @@
                 document.getElementById('regenerateBtn').style.display = 'none';
                 document.getElementById('downloadBtn').style.display = 'none';
                 document.getElementById('saveGalleryBtn').style.display = 'none';
+                document.getElementById('pngConvertBtn').style.display = 'none';
                 document.getElementById('status').innerHTML = 'Regenerating...';
                 
                 try {
@@ -2088,6 +2250,7 @@
                 const regen = document.getElementById('regenerateBtn');
                 const downloadBtn = document.getElementById('downloadBtn');
                 const saveGalleryBtn = document.getElementById('saveGalleryBtn');
+                const pngConvertBtn = document.getElementById('pngConvertBtn');
                 let attempts = 0;
                 
                 const poll = setInterval(async ()=>{
@@ -2098,6 +2261,7 @@
                         if(st.done && st.generations && st.generations[0]) {
                             clearInterval(poll);
                             const url = st.generations[0].img;
+                            currentImageUrl = url;
 
                             loader.style.display = 'none';
                             s.innerHTML = '✅ Image generated successfully';
@@ -2107,6 +2271,7 @@
                             regen.style.display = 'inline-flex';
                             downloadBtn.style.display = 'inline-flex';
                             saveGalleryBtn.style.display = 'inline-flex';
+                            pngConvertBtn.style.display = 'inline-flex';
 
                             downloadBtn.onclick = function(e) {
                                 e.preventDefault();
@@ -2114,7 +2279,7 @@
                                 a.href = url;
                                 a.target = "_blank";
                                 a.rel = "noopener";
-                                a.download = 'ai-image-' + Date.now() + '.jpg';
+                                a.download = 'ai-image-' + Date.now() + '.webp';
                                 document.body.appendChild(a);
                                 a.click();
                                 a.remove();
@@ -2128,6 +2293,7 @@
                             regen.style.display = 'inline-flex';
                             downloadBtn.style.display = 'none';
                             saveGalleryBtn.style.display = 'none';
+                            pngConvertBtn.style.display = 'none';
                             isGenerating = false;
                         } else if(attempts++ > 40) {
                             clearInterval(poll);
@@ -2136,6 +2302,7 @@
                             regen.style.display = 'inline-flex';
                             downloadBtn.style.display = 'none';
                             saveGalleryBtn.style.display = 'none';
+                            pngConvertBtn.style.display = 'none';
                             isGenerating = false;
                         } else {
                             s.innerHTML = '⏳ Queue position: ' + (st.queue_position || 'waiting...');
@@ -2177,6 +2344,7 @@
         testBackendConnection();
         log('🚀 Using Render Node.js backend', 'info');
         log('💡 Using Prompt Enhancer', 'info');
+        log('🎨 PNG conversion available (Client-side canvas conversion)', 'info');
         
         updateSelectedStyle('photorealistic');
     };
