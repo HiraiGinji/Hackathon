@@ -35,50 +35,44 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Backend is running' });
 });
 
-// ============= TRIPO3D API INTEGRATION =============
+// ============= TRIPO3D API INTEGRATION (v3) =============
 
-// Tripo3D configuration
+// Tripo3D v3 configuration
 const TRIPO_API_KEY = process.env.TRIPO_API_KEY;
-const TRIPO_BASE_URL = "https://api.tripo3d.ai/v2/openapi";
+const TRIPO_BASE_URL = "https://openapi.tripo3d.ai/v3";
 
-// Helper function for Tripo3D API calls
+// Helper function for Tripo3D v3 API calls
 async function callTripoAPI(endpoint, method = 'GET', body = null, isJson = true) {
     const url = `${TRIPO_BASE_URL}${endpoint}`;
     const headers = {
         'Authorization': `Bearer ${TRIPO_API_KEY}`
     };
-    
-    if (isJson) {
+
+    if (isJson && body) {
         headers['Content-Type'] = 'application/json';
     }
-    
-    const options = {
-        method,
-        headers
-    };
-    
+
+    const options = { method, headers };
+
     if (body) {
-        if (isJson) {
-            options.body = JSON.stringify(body);
-        } else {
-            options.body = body;
-        }
+        options.body = isJson ? JSON.stringify(body) : body;
     }
-    
+
     const response = await fetch(url, options);
     const data = await response.json();
-    
+
     if (data.code !== 0) {
-        throw new Error(`Tripo3D API error: ${data.message || 'Unknown error'}`);
+        const suggestion = data.suggestion ? ` — ${data.suggestion}` : '';
+        throw new Error(`Tripo3D API error [${data.code}]: ${data.message || 'Unknown error'}${suggestion}`);
     }
-    
+
     return data.data;
 }
 
-// Check Tripo3D balance
+// Check Tripo3D account balance
 app.get('/api/tripo/balance', async (req, res) => {
     try {
-        const data = await callTripoAPI('/user/balance');
+        const data = await callTripoAPI('/account/balance');
         res.json({ success: true, data });
     } catch (error) {
         console.error('Tripo balance error:', error);
@@ -86,62 +80,77 @@ app.get('/api/tripo/balance', async (req, res) => {
     }
 });
 
-// Upload image to Tripo3D
+// Upload image to Tripo3D (v3: POST /files)
 app.post('/api/tripo/upload', upload.single('image'), async (req, res) => {
     try {
         if (!req.file) {
             return res.status(400).json({ success: false, error: 'No image uploaded' });
         }
-        
+
         const formData = new FormData();
         formData.append('file', fs.createReadStream(req.file.path), {
             filename: req.file.originalname,
             contentType: req.file.mimetype
         });
-        
-        const response = await fetch(`${TRIPO_BASE_URL}/upload/sts`, {
+
+        const response = await fetch(`${TRIPO_BASE_URL}/files`, {
             method: 'POST',
             headers: {
                 'Authorization': `Bearer ${TRIPO_API_KEY}`
             },
             body: formData
         });
-        
+
         const data = await response.json();
-        
+
         // Clean up uploaded file
         fs.unlinkSync(req.file.path);
-        
+
         if (data.code !== 0) {
-            throw new Error(data.message || 'Upload failed');
+            throw new Error(`Upload failed [${data.code}]: ${data.message}`);
         }
-        
-        res.json({ success: true, image_token: data.data.image_token });
+
+        // v3 returns file_token
+        res.json({ success: true, file_token: data.data.file_token });
     } catch (error) {
         console.error('Tripo upload error:', error);
         res.status(500).json({ success: false, error: error.message });
     }
 });
 
-// Submit image-to-3d task
+// Submit image-to-3d task (v3: POST /generation/image-to-model)
 app.post('/api/tripo/generate', async (req, res) => {
     try {
-        const { image_token, model_version = "v2.5-20250123", refine = false } = req.body;
-        
-        if (!image_token) {
-            return res.status(400).json({ success: false, error: 'Image token required' });
+        const {
+            file_token,                 // from upload — or pass `url` / `task_id` instead
+            model = 'v3.1-20260211',
+            texture = true,
+            pbr = true,
+            texture_quality = 'standard',
+            geometry_quality = 'standard',
+            enable_image_autofix = false,
+            face_limit,
+            quad = false
+        } = req.body;
+
+        if (!file_token) {
+            return res.status(400).json({ success: false, error: 'file_token (or url / task_id) required' });
         }
-        
+
         const taskData = {
-            type: "image_to_model",
-            model_version,
-            file: {
-                type: "jpg",
-                file_token: image_token
-            }
+            input: file_token,          // v3 accepts file_token / URL / task_id directly
+            model,
+            texture,
+            pbr,
+            texture_quality,
+            geometry_quality,
+            enable_image_autofix,
+            quad
         };
-        
-        const data = await callTripoAPI('/task', 'POST', taskData);
+
+        if (face_limit) taskData.face_limit = face_limit;
+
+        const data = await callTripoAPI('/generation/image-to-model', 'POST', taskData);
         res.json({ success: true, task_id: data.task_id });
     } catch (error) {
         console.error('Tripo generate error:', error);
@@ -149,11 +158,11 @@ app.post('/api/tripo/generate', async (req, res) => {
     }
 });
 
-// Check task status
+// Check task status (v3: GET /tasks/:id)
 app.get('/api/tripo/task/:taskId', async (req, res) => {
     try {
         const { taskId } = req.params;
-        const data = await callTripoAPI(`/task/${taskId}`);
+        const data = await callTripoAPI(`/tasks/${taskId}`);
         res.json({ success: true, data });
     } catch (error) {
         console.error('Tripo task status error:', error);
@@ -162,45 +171,33 @@ app.get('/api/tripo/task/:taskId', async (req, res) => {
 });
 
 // Submit refine task
+// NOTE: v3 has no separate refine task. Quality is controlled via
+// geometry_quality / texture_quality at generation time. Kept here as a
+// friendly no-op so older frontends don't break.
 app.post('/api/tripo/refine', async (req, res) => {
-    try {
-        const { task_id } = req.body;
-        
-        if (!task_id) {
-            return res.status(400).json({ success: false, error: 'Task ID required' });
-        }
-        
-        const taskData = {
-            type: "refine_model",
-            draft_model_task_id: task_id
-        };
-        
-        const data = await callTripoAPI('/task', 'POST', taskData);
-        res.json({ success: true, task_id: data.task_id });
-    } catch (error) {
-        console.error('Tripo refine error:', error);
-        res.status(500).json({ success: false, error: error.message });
-    }
+    res.status(410).json({
+        success: false,
+        error: 'Refine task removed in Tripo v3. Use geometry_quality/texture_quality at generation time instead.'
+    });
 });
 
-// Convert model format
+// Convert model format (v3: POST /models/convert)
 app.post('/api/tripo/convert', async (req, res) => {
     try {
-        const { task_id, format = "GLTF", quad = false, face_limit = 10000 } = req.body;
-        
+        const { task_id, format = 'GLTF', quad = false, face_limit = 10000 } = req.body;
+
         if (!task_id) {
             return res.status(400).json({ success: false, error: 'Task ID required' });
         }
-        
+
         const taskData = {
-            type: "convert_model",
-            format,
             original_model_task_id: task_id,
+            format,
             quad,
             face_limit
         };
-        
-        const data = await callTripoAPI('/task', 'POST', taskData);
+
+        const data = await callTripoAPI('/models/convert', 'POST', taskData);
         res.json({ success: true, task_id: data.task_id });
     } catch (error) {
         console.error('Tripo convert error:', error);
@@ -214,7 +211,7 @@ app.post('/api/tripo/convert', async (req, res) => {
 app.post('/api/generate-car-recommendations', async (req, res) => {
     try {
         const { prompt } = req.body;
-        
+
         if (!prompt) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
@@ -258,7 +255,7 @@ app.post('/api/generate-car-recommendations', async (req, res) => {
 app.post('/api/generate-title', async (req, res) => {
     try {
         const { prompt } = req.body;
-        
+
         if (!prompt) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
@@ -304,7 +301,7 @@ app.post('/api/generate-title', async (req, res) => {
 app.post('/api/generate-image', async (req, res) => {
     try {
         const { prompt } = req.body;
-        
+
         if (!prompt) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
@@ -319,12 +316,12 @@ app.post('/api/generate-image', async (req, res) => {
             },
             body: JSON.stringify({
                 prompt: prompt,
-                params: { 
-                    n: 1, 
-                    width: 704, 
-                    height: 512, 
-                    steps: 25, 
-                    cfg_scale: 7 
+                params: {
+                    n: 1,
+                    width: 704,
+                    height: 512,
+                    steps: 25,
+                    cfg_scale: 7
                 },
                 models: ["stable_diffusion"]
             })
@@ -347,11 +344,11 @@ app.post('/api/generate-image', async (req, res) => {
 app.get('/api/image-status/:id', async (req, res) => {
     try {
         const { id } = req.params;
-        
+
         console.log('Checking status for job:', id);
-        
+
         const response = await fetch(`https://aihorde.net/api/v2/generate/status/${id}`);
-        
+
         if (!response.ok) {
             return res.status(response.status).json({ error: 'Failed to fetch status' });
         }
@@ -368,7 +365,7 @@ app.get('/api/image-status/:id', async (req, res) => {
 app.post('/api/enhance-prompt', async (req, res) => {
     try {
         const { prompt } = req.body;
-        
+
         if (!prompt) {
             return res.status(400).json({ error: 'Prompt is required' });
         }
@@ -376,7 +373,7 @@ app.post('/api/enhance-prompt', async (req, res) => {
         console.log('Enhancing prompt:', prompt);
 
         let promptGeneratorUrl = process.env.PROMPT_GENERATOR_URL;
-        
+
         if (!promptGeneratorUrl) {
             if (process.env.NODE_ENV === 'production') {
                 promptGeneratorUrl = process.env.NGROK_URL || 'http://localhost:5000/generate';
@@ -414,8 +411,8 @@ app.post('/api/enhance-prompt', async (req, res) => {
                     `${prompt}, cinematic lighting, 8k resolution, professional photography`,
                     `${prompt}, intricate details, sharp focus, award winning`
                 ];
-                
-                return res.json({ 
+
+                return res.json({
                     enhancedPrompts: fallbackPrompts,
                     original: prompt,
                     fallback: true
@@ -423,7 +420,7 @@ app.post('/api/enhance-prompt', async (req, res) => {
             }
 
             const data = await response.json();
-            
+
             let enhancedPrompts = [];
             if (Array.isArray(data)) {
                 enhancedPrompts = data;
@@ -432,28 +429,28 @@ app.post('/api/enhance-prompt', async (req, res) => {
             } else {
                 enhancedPrompts = [prompt];
             }
-            
-            res.json({ 
+
+            res.json({
                 enhancedPrompts: enhancedPrompts,
-                original: prompt 
+                original: prompt
             });
-            
+
         } catch (fetchError) {
             clearTimeout(timeoutId);
-            
+
             const fallbackPrompts = [
                 `${prompt}, highly detailed, masterpiece, trending on ArtStation`,
                 `${prompt}, cinematic lighting, 8k resolution, professional photography`,
                 `${prompt}, intricate details, sharp focus, award winning`
             ];
-            
-            res.json({ 
+
+            res.json({
                 enhancedPrompts: fallbackPrompts,
                 original: prompt,
                 fallback: true
             });
         }
-        
+
     } catch (error) {
         console.error('Error in enhance-prompt:', error);
         const fallbackPrompts = [
@@ -461,9 +458,9 @@ app.post('/api/enhance-prompt', async (req, res) => {
             `${prompt}, cinematic lighting`,
             `${prompt}, masterpiece`
         ];
-        res.json({ 
+        res.json({
             enhancedPrompts: fallbackPrompts,
-            original: prompt 
+            original: prompt
         });
     }
 });
@@ -472,7 +469,7 @@ app.post('/api/enhance-prompt', async (req, res) => {
 app.get('/api/tripo/proxy-model', async (req, res) => {
     try {
         const { url } = req.query;
-        
+
         if (!url) {
             return res.status(400).json({ error: 'URL parameter required' });
         }
@@ -491,15 +488,15 @@ app.get('/api/tripo/proxy-model', async (req, res) => {
 
         // Get the content type from the response
         const contentType = response.headers.get('content-type') || 'model/gltf-binary';
-        
+
         // Set appropriate headers
         res.setHeader('Content-Type', contentType);
         res.setHeader('Access-Control-Allow-Origin', '*');
         res.setHeader('Access-Control-Allow-Methods', 'GET');
-        
+
         // Stream the response to the client
         response.body.pipe(res);
-        
+
     } catch (error) {
         console.error('Proxy error:', error);
         res.status(500).json({ error: error.message });
@@ -510,36 +507,36 @@ app.get('/api/tripo/proxy-model', async (req, res) => {
 app.get('/api/prompt-generator-status', async (req, res) => {
     try {
         const promptGeneratorUrl = process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/health';
-        
+
         const controller = new AbortController();
         const timeoutId = setTimeout(() => controller.abort(), 5000);
-        
+
         const response = await fetch(promptGeneratorUrl, {
             method: 'GET',
             signal: controller.signal
         });
-        
+
         clearTimeout(timeoutId);
-        
+
         if (response.ok) {
             const data = await response.json();
-            res.json({ 
-                status: 'connected', 
+            res.json({
+                status: 'connected',
                 url: promptGeneratorUrl,
-                details: data 
+                details: data
             });
         } else {
-            res.json({ 
-                status: 'error', 
+            res.json({
+                status: 'error',
                 url: promptGeneratorUrl,
-                code: response.status 
+                code: response.status
             });
         }
     } catch (error) {
-        res.json({ 
-            status: 'disconnected', 
+        res.json({
+            status: 'disconnected',
             url: process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/health',
-            error: error.message 
+            error: error.message
         });
     }
 });
@@ -552,7 +549,8 @@ app.listen(PORT, () => {
     console.log(`🔑 Horde API Key: ${process.env.HORDE_API_KEY ? '✓ Loaded' : '✗ Missing'}`);
     console.log(`🔑 Tripo3D API Key: ${process.env.TRIPO_API_KEY ? '✓ Loaded' : '✗ Missing'}`);
     console.log(`🤖 Prompt Generator: ${process.env.PROMPT_GENERATOR_URL || 'http://localhost:5000/generate (default)'}`);
-    
+    console.log(`🧊 Tripo3D API: v3 (https://openapi.tripo3d.ai/v3)`);
+
     if (process.env.NGROK_URL) {
         console.log(`🌐 Using ngrok tunnel: ${process.env.NGROK_URL}`);
     }
