@@ -1,31 +1,62 @@
 # QPTech: AI Image Generator
 
-> A hackathon project that pairs a web frontend with a Node.js backend and a Python prompt/generation toolkit to turn ideas into AI-generated images.
+> A free generative-AI web platform that turns text into images, finds your dream car, and builds 3D models. Built for a hackathon by **BLSQP Development** (University of the East).
+
+## 🚀 Try It Online
+
+**Live demo: [https://hackathon-thkh.onrender.com](https://hackathon-thkh.onrender.com/)**
+
+| Tool                | Link                                                                          |
+| ------------------- | ----------------------------------------------------------------------------- |
+| 🏠 Home             | [hackathon-thkh.onrender.com](https://hackathon-thkh.onrender.com/)           |
+| 🎨 AI Image         | [/everythingai.html](https://hackathon-thkh.onrender.com/everythingai.html)   |
+| 🚗 Dream Car Finder | [/car.html](https://hackathon-thkh.onrender.com/car.html)                     |
+| 🧊 3D Model         | [/3dmodel.html](https://hackathon-thkh.onrender.com/3dmodel.html)             |
+
+> **Note:** The demo is hosted on Render. If it hasn't been visited in a while, the first load may take up to a minute while the server wakes up.
 
 ---
 
-## Overview
+## Features
 
-QPTech is split into three parts that work together:
+- **AI image generation**: turn a short text description into high-quality visuals, from concept art to product design
+- **Prompt enhancer**: automatically adds style, mood, camera, and quality keywords to your prompt for better results
+- **Dream car finder**: describe your ideal ride and the AI matches specs and style, and can generate images of it
+- **3D model tool**: generate 3D models from your ideas
+- **LLM reasoning**: Mistral AI powers smart reasoning and creative titles
+- **Safety filtering**: a strict no-NSFW policy; inappropriate content is filtered and blocked
 
-| Folder              | Role                                                              |
-| ------------------- | ----------------------------------------------------------------- |
-| `frontend/`         | User interface for entering ideas and viewing generated results   |
-| `backend/`          | Node.js server (`backend/server.js`) that serves the app and API  |
-| `prompt-generator/` | Python tooling for prompt generation and the AI/image pipeline    |
+## How It Works
+
+1. **Describe**: write a sentence, like "cyberpunk car" or "ethereal forest"
+2. **AI enhance**: the prompt enhancer adds style keywords automatically
+3. **Generate**: get your enhanced prompt and the generated result
+
+### Prompt tips
+
+| Technique             | Example                                         |
+| --------------------- | ----------------------------------------------- |
+| Be specific           | `red Ferrari 458 Italia, sunset highway, cinematic` |
+| Add mood / atmosphere | `mystical forest, ethereal atmosphere, glowing` |
+| Mention an art style  | `cyberpunk samurai, rain, neon lights`          |
+| Camera & composition  | `mountain landscape, wide angle, dramatic clouds` |
+| Negative concepts     | `beautiful beach, no people, sunset`            |
+| Quality indicators    | `fantasy dragon, highly detailed, 8k`           |
 
 ## Tech Stack
 
 - **Backend:** Node.js 18.x (`nodemon` for development)
-- **Frontend:** web client served alongside the backend
-- **AI / Python:** `transformers`, `huggingface-hub`, `einops`, `omegaconf`, `Pillow`, `rembg` (background removal), `trimesh` (3D mesh handling), `imageio[ffmpeg]` (image/video I/O)
+- **Frontend:** multi-page web client (`index`, `everythingai`, `car`, `3dmodel`)
+- **LLM:** Mistral AI
+- **Python / AI:** `transformers`, `huggingface-hub`, `einops`, `omegaconf`, `Pillow`, `rembg`, `trimesh`, `imageio[ffmpeg]`
+- **Hosting:** Render
 
 ## Project Structure
 
 ```
 Hackathon/
-├── backend/            # Node.js server
-├── frontend/           # Web UI
+├── backend/            # Node.js server (server.js)
+├── frontend/           # Web UI pages
 ├── prompt-generator/   # Python prompt / generation code
 ├── package.json        # Node scripts and engine requirements
 ├── package-lock.json
@@ -33,65 +64,55 @@ Hackathon/
 └── .gitignore
 ```
 
-## Getting Started
+## Run It Locally
 
 ### Prerequisites
 
 - [Node.js 18.x](https://nodejs.org/)
 - [Python 3.9+](https://www.python.org/) and `pip`
-- [FFmpeg](https://ffmpeg.org/) (used by `imageio[ffmpeg]`)
-- A [Hugging Face](https://huggingface.co/) account/token if the models you use require one
+- [FFmpeg](https://ffmpeg.org/)
+- API keys for the services you use (e.g. Mistral, Hugging Face)
 
 ### Installation
 
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/HiraiGinji/Hackathon.git
-   cd Hackathon
-   ```
-
-2. **Install Node dependencies**
-   ```bash
-   npm install
-   ```
-   The `postinstall` script automatically runs `npm install` inside `backend/` as well.
-
-3. **Install Python dependencies**
-   ```bash
-   python -m venv venv
-   source venv/bin/activate        # Windows: venv\Scripts\activate
-   pip install -r requirements.txt
-   ```
-
-4. **Configure environment variables**
-   Create a `.env` file in `backend/` (and `prompt-generator/` if needed) with any API keys or tokens your setup requires, for example:
-   ```env
-   PORT=3000
-   HUGGINGFACE_TOKEN=your_token_here
-   ```
-
-### Running the App
-
 ```bash
-# Production
-npm start
+# 1. Clone
+git clone https://github.com/HiraiGinji/Hackathon.git
+cd Hackathon
 
-# Development (auto-restart on changes)
-npm run dev
+# 2. Node dependencies (also installs backend/ via postinstall)
+npm install
+
+# 3. Python dependencies
+python -m venv venv
+source venv/bin/activate        # Windows: venv\Scripts\activate
+pip install -r requirements.txt
 ```
 
-Then open `http://localhost:3000` in your browser (adjust the port to match your configuration).
+### Environment variables
+
+Create a `.env` file in `backend/` with the keys your setup needs, for example:
+
+```env
+PORT=3000
+MISTRAL_API_KEY=your_key_here
+HUGGINGFACE_TOKEN=your_token_here
+```
+
+> Variable names are examples. Match them to what `backend/server.js` reads.
+
+### Start the app
+
+```bash
+npm start        # production
+npm run dev      # development (auto-restart with nodemon)
+```
+
+Then open `http://localhost:3000`.
 
 ## Scripts
 
-| Command       | Description                                    |
-| ------------- | ---------------------------------------------- |
+| Command       | Description                                      |
+| ------------- | ------------------------------------------------ |
 | `npm start`   | Starts the backend with `node backend/server.js` |
-| `npm run dev` | Starts the backend with `nodemon`              |
-
-## Usage
-
-1. Open the web app.
-2. Enter a description or idea for the image you want.
-3. Let the prompt generator refine it and send it to the AI pipeline.
-4. View and download the generated result.
+| `npm run dev` | Starts the backend with `nodemon`                |
